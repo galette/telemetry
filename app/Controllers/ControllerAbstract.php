@@ -1,5 +1,6 @@
 <?php namespace GLPI\Telemetry\Controllers;
 
+use Slim\Container;
 use Slim\Views\Twig;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -19,9 +20,9 @@ abstract class ControllerAbstract
    /**
    * Controller constructor
    *
-   * @param ContainerInterface $container
+   * @param Container $container
    */
-    public function __construct(ContainerInterface $container)
+    public function __construct(Container $container)
     {
         $this->container = $container;
 

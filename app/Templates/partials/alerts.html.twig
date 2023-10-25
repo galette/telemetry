@@ -1,7 +1,7 @@
-{% set flashMessages = flash() %}
+{% set flashMessages = flash.getMessages() %}
 {% if flashMessages|length > 0%}
 <div class="notify">
-    {% for alert_type, alerts in flash() %}
+    {% for alert_type, alerts in flashMessages %}
         {% set faclass -%}
             {%- if alert_type == 'success' -%}
                 check

@@ -13,12 +13,9 @@
 {% block header %}
 
 {% set myheader= {
-   'title': header_title|default('<i class="fa fa-bar-chart"></i> Telemetry'),
-   'text':  header_text|default('Since version 9.2 of GLPI, we collect anonymous
-             <a id="register" href="#" data-toggle="modal" data-target="#json_data_example">data</a> from instance of voluntary users.
-             Here is some representations of these data.
-             <br>
-             As we don&apos;t have many data at the moment, the charts will be temporary simple. We&apos;ll complete this page soon.')
+   'title': '<i class="fa fa-bar-chart"></i> Telemetry',
+   'text':  'Since Galette 0.9, we collect anonymous
+             <a id="register" href="#" data-toggle="modal" data-target="#json_data_example">data</a> from instance of voluntary users.'
 } %}
 {{ parent() }}
 {% endblock %}
@@ -98,7 +95,7 @@
       {% set vars = {'chart': {
                         'id':    'glpi_versions',
                         'title': '%s versions'|format(project_name),
-                        'text':  versionchart_text|default('<i class="fa fa-exclamation-circle"></i> we don&apos;t have any data for versions prior to 9.2'),
+                        'text':  '<i class="fa fa-exclamation-circle"></i> we don&apos;t have any data for versions prior to 0.9',
                         'data':  glpi_versions
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
@@ -167,19 +164,6 @@
       {% include 'partials/chart.html.twig' with vars %}
       </div>
     {% endif %}
-
-    {% if install_modes %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id':    'install_modes',
-                        'title': 'Installation modes',
-                        'text':  '',
-                        'data':  install_modes
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
    </div>
 </div>
 
@@ -210,8 +194,6 @@
 {# Get map provider from configuration #}
 <script type="text/javascript">
     var geojson_path = '{{ path_for('geojson') }}';
-    var map_provider = '{{ leafletprovider.name }}';
-    var map_provider_conf = {{ leafletprovider.config|raw }};
 </script>
 <script src="{{base_url()}}/libs/leaflet/leaflet.js"></script>
 <script src="{{base_url()}}/libs/spin.js/spin.min.js"></script>

@@ -223,16 +223,6 @@ $(document).ready(function() {
         );
     }
 
-    var install_modes = $('#install_modes');
-    if (install_modes.length > 0) {
-        Plotly.newPlot(
-            "install_modes",
-            plotlyData(install_modes.data("id")),
-            $.extend({}, plotly_pie_layout, {paper_bgcolor: '#1A5197'}),
-            plotly_config
-        );
-    }
-
     // # MISC INTERACTIONS #
 
     // masonry on dashboard

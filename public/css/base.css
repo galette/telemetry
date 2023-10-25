@@ -57,14 +57,6 @@ header.navbar {
    }
 }
 
-.contact .page-header {
-   background-color: #87C38D
-}
-
-.contact .active {
-   color: #40A24A !important;
-}
-
 .error.page-header {
    background-color: #E56665
 }
@@ -78,10 +70,6 @@ header.navbar {
    background-color: #FFF7F0
 }
 
-
-.contact #page {
-   background-color: #E9F7E9
-}
 
 #page >.page-content {
    padding: 1.5rem 0 4rem 0;

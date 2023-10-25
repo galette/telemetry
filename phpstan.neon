@@ -1,0 +1,8 @@
+parameters:
+    parallel:
+        maximumNumberOfProcesses: 2
+    level: 1
+    paths:
+        - app/
+    ignoreErrors:
+        - '/Call to an undefined static method Illuminate\\Database\\Capsule\\Manager::raw\(\)/'

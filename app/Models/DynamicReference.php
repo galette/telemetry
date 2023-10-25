@@ -1,6 +1,8 @@
 <?php namespace GLPI\Telemetry\Models;
 
-class DynamicReference extends \Illuminate\Database\Eloquent\Model
+use Illuminate\Database\Eloquent\Model;
+
+class DynamicReference extends Model
 {
     protected $table = 'dynamic_reference';
     protected $guarded = [

@@ -1,0 +1,69 @@
+name: Galette CI
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - 'feature/*'
+      - 'hotfix/*'
+      - 'release/*'
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: "Lint on PHP ${{ matrix.php-versions }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ '8.1', '8.2', '8.3-rc' ]
+
+    steps:
+      - name: PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          tools: composer, pecl
+          coverage: ${{ matrix.coverage }}
+          extensions: apcu
+          ini-values: apc.enable_cli=1
+
+      - name: "Show versions"
+        run: |
+          php --version
+          composer --version
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: |
+          composer install
+
+      - name: CS
+        run: |
+          vendor/bin/phpcs -n -p --standard=PSR2 app/ public/index.php
+
+      - name: Check missing symbols
+        run: |
+          vendor/bin/composer-require-checker check --config-file=.composer-require-checker.config.json composer.json
+
+      - name: PHPStan checks
+        run: |
+          vendor/bin/phpstan analyze --ansi --memory-limit=2G --no-interaction --no-progress
