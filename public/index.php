@@ -6,18 +6,6 @@ require '../app/init.php';
 $app->get('/', 'GLPI\Telemetry\Controllers\Telemetry:view')
     ->setName('telemetry');
 
-if ($container->project->hasContactPage()) {
-    // contact
-    $app->get('/contact', 'GLPI\Telemetry\Controllers\Contact:view')
-        ->add(new GLPI\Telemetry\Middleware\CsrfView($container))
-        ->add($container['csrf'])
-        ->setName('contact');
-    $app->post('/contact', 'GLPI\Telemetry\Controllers\Contact:send')
-        ->add($recaptcha)
-        ->add($container['csrf'])
-        ->setName('sendContact');
-}
-
 /** References */
 //References list
 $app->get('/reference[/page/{page:\d+}]', 'GLPI\Telemetry\Controllers\Reference:view')

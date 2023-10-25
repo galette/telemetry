@@ -1,9 +1,8 @@
 <?php namespace GLPI\Telemetry\Controllers;
 
-use GLPI\Telemetry\Controllers\ControllerAbstract;
 use GLPI\Telemetry\Models\Reference as ReferenceModel;
 use GLPI\Telemetry\Models\DynamicReference;
-use Illuminate\Pagination\LengthAwarePaginator;
+use PHPMailer\PHPMailer\PHPMailer;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -38,6 +37,7 @@ class Reference extends ControllerAbstract
         $order_sort  = $_SESSION['reference']['sort'];
 
         try {
+            $join_table = '';
             //prepare model and common queries
             $ref = new ReferenceModel();
             $model = $ref->newInstance();
@@ -111,14 +111,14 @@ class Reference extends ControllerAbstract
         $references->setPath($this->container->router->pathFor('reference'));
 
         $ref_countries = [];
-        $existing_countries = ReferenceModel::select('country')->groupBy('country')->get();
+        $existing_countries = ReferenceModel::query()->select('country')->groupBy('country')->get();
         foreach ($existing_countries as $existing_country) {
             $ref_countries[] = $existing_country['country'];
         }
 
         // render in twig view
-        $this->render($this->container->project->pathFor('reference.html.twig'), [
-            'total'         => ReferenceModel::active()->count(),
+        $this->render('default/reference.html.twig', [
+            'total'         => ReferenceModel::query()->where('is_displayed', '=', true)->count(),
             'class'         => 'reference',
             'showmodal'     => isset($get['showmodal']),
             'uuid'          => isset($get['uuid']) ? $get['uuid'] : '',
@@ -159,11 +159,11 @@ class Reference extends ControllerAbstract
 
         // create reference in db
         if ('' == $ref_data['uuid']) {
-            $reference = ReferenceModel::create(
+            $reference = ReferenceModel::query()->create(
                 $ref_data
             );
         } else {
-            $reference = ReferenceModel::updateOrCreate(
+            $reference = ReferenceModel::query()->updateOrCreate(
                 ['uuid' => $ref_data['uuid']],
                 $ref_data
             );
@@ -189,7 +189,7 @@ class Reference extends ControllerAbstract
         }
 
         // send a mail to admin
-        $mail = new \PHPMailer;
+        $mail = new PHPMailer;
         $mail->setFrom($this->container['settings']['mail_from']);
         $mail->addAddress($this->container['settings']['mail_admin']);
         $mail->Subject = "A new reference has been submitted: ".$post['name'];

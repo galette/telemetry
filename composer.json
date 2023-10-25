@@ -1,14 +1,14 @@
 {
-    "name": "glpi/telemetry",
+    "name": "galette/telemetry",
     "description": "Telemetry reports",
     "license": "MIT",
     "type": "project",
-    "homepage": "https://github.com/glpi-project/telemetry",
+    "homepage": "https://github.com/galette/telemetry",
     "config": {
       "optimize-autoloader": true,
-      "platform": {
-        "php": "5.6.19"
-      }
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
    },
    "autoload": {
         "psr-4": {
@@ -16,31 +16,29 @@
         }
     },
     "require": {
+        "php": ">=8.1",
         "ext-pgsql": "*",
         "slim/slim": "^3.8",
-        "monolog/monolog": "^1.22",
+        "monolog/monolog": "^3.4",
         "slim/twig-view": "^2.2",
-        "illuminate/database": "~5.2.0",
-        "illuminate/pagination": "~5.2.0",
-        "mledoze/countries": "^1.8",
-        "slim/flash": "^0.2.0",
-        "kanellov/slim-twig-flash": "^0.2.0",
+        "illuminate/database": "^10.0",
+        "illuminate/pagination": "^10.29",
+        "mledoze/countries": "^5.0",
+        "slim/flash": "^0.4.0",
         "google/recaptcha": "^1.1",
         "geggleto/psr7-recaptcha": "^0.0.1",
-        "phpmailer/phpmailer": "^5.2",
+        "phpmailer/phpmailer": "^6.8",
         "slim/csrf": "^0.8.1",
         "justinrainbow/json-schema": "^5.2",
-        "nicmart/numbers": "^0.1.0",
-        "zendframework/zend-cache": "^2.7",
-        "robmorgan/phinx": "^0.9.1",
-        "akrabat/rka-scheme-and-host-detection-middleware": "^0.3.0"
+        "robmorgan/phinx": "^0.14.0",
+        "symfony/cache": "^6.3"
     },
     "require-dev": {
-        "atoum/atoum": "^3.2",
-        "atoum/telemetry-extension": "^1.0"
+        "squizlabs/php_codesniffer": "^3.7",
+        "maglnet/composer-require-checker": "^4.7",
+        "phpstan/phpstan": "^1.10"
     },
     "scripts": {
-        "start": "php -S 0.0.0.0:8080 -t public public/index.php",
-        "post-install-cmd": "patch -d vendor/illuminate/database/ -p3 < illuminate-php7.2.patch"
+        "start": "php -S 0.0.0.0:8080 -t public public/index.php"
     }
 }
