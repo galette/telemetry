@@ -21,6 +21,19 @@ return $config = [
                 'faclass'   => 'fa fa-pencil',
                 'url'       => 'http://galette.eu/site/contact'
             ]
+        ],
+        'schema' => [
+            'usage' => false        ],
+        'mapping' => [
+            'avg_members'       => 'avg_entities',
+            'avg_contributions' => 'avg_computers',
+            'avg_transactions'  => 'avg_networkequipments'
+        ],
+        'dyn_references' => [
+            'num_members' => [
+                'label'         => 'Number of members',
+                'short_label'   => '#members'
+            ]
         ]
     ],
    'baseurl' => 'https://telemetry.galette.eu',
@@ -39,5 +52,5 @@ return $config = [
       'secret'    => ''
    ],
    'mail_admin' => '',
-   'mail_from' => 'telemetry+noreply@galette.eu',
+   'mail_from' => 'telemetry+noreply@galette.eu'
 ];
