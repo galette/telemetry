@@ -1,6 +1,6 @@
 {
     "name": "galette/telemetry",
-    "description": "Telemetry reports",
+    "description": "Galette telemetry reports",
     "license": "MIT",
     "type": "project",
     "homepage": "https://github.com/galette/telemetry",
