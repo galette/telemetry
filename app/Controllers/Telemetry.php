@@ -253,7 +253,7 @@ class Telemetry extends ControllerAbstract
 
         $cache = $this->container->cache;
         if ($cache->hasItem('countries')) {
-            $countries = $cache->getItem('countries');
+            $countries = $cache->getItem('countries')->get();
         }
 
         if ($countries === null) {
