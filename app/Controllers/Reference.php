@@ -123,7 +123,6 @@ class Reference extends ControllerAbstract
             'showmodal'     => isset($get['showmodal']),
             'uuid'          => isset($get['uuid']) ? $get['uuid'] : '',
             'references'    => $references,
-            'pagination'    => $references->appends($_GET)->render(),
             'orderby'       => $_SESSION['reference']['orderby'],
             'sort'          => $_SESSION['reference']['sort'],
             'dyn_refs'      => $dyn_refs,

@@ -118,7 +118,35 @@
    </table>
 
    <nav aria-label="Page navigation">
-      {{ references.render() |raw }}
+       {% set nearbyPagesLimit = 10 %}
+       {% set current = references.currentPage() %}
+       {% if references.hasPages() %}
+           <ul class="pagination my-4">
+               {% for i in 1..references.lastPage() %}
+                   {% if 0 == (current - nearbyPagesLimit) - loop.index %}
+                       <li class="page-item"><a href="{{ references.url(1) }}" class="page-link">1</a></li>
+                       {% if 1 != loop.index %}
+                           <li class="page-item">
+                               <a href="javascript:void(0)" class="page-link">...</a>
+                           </li>
+                       {% endif %}
+                   {% elseif 0 == (current + nearbyPagesLimit) - loop.index  and (current + nearbyPagesLimit) < references.lastPage() %}
+                       <li class="page-item">
+                           <a href="javascript:void(0)" class="page-link">...</a>
+                       </li>
+                   {% elseif 0 < (current - nearbyPagesLimit) - loop.index %}
+                   {% elseif 0 > (current + nearbyPagesLimit) - loop.index %}
+                   {% else %}
+                       <li class="page-item{{ current == loop.index ? ' active' }}">
+                           <a href="{{ references.url(loop.index) }}" class="page-link">{{ loop.index }}</a>
+                       </li>
+                   {% endif %}
+               {% endfor %}
+               {% if current != references.lastPage()  and (current + nearbyPagesLimit) < references.lastPage() %}
+                   <li class="page-item"><a href="{{ references.url(references.lastPage()) }}" class="page-link">{{ references.lastPage() }}</a></li>
+               {% endif %}
+           </ul>
+       {% endif %}
    </nav>
 
    <form method="post">
