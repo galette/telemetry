@@ -203,15 +203,10 @@ $container['log_dir'] = function ($c) {
 };
 
 $container['cache'] = function ($c) {
-    $cache_dir = $c->cache_dir . '/telemetry';
-    if (!file_exists($cache_dir)) {
-        mkdir($cache_dir);
-    }
-
     $cache = new \Symfony\Component\Cache\Adapter\FilesystemAdapter(
         'telemetry',
         0,
-        $cache_dir
+        $c->cache_dir
     );
 
     return $cache;
