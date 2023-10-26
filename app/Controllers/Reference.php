@@ -1,7 +1,7 @@
-<?php namespace GLPI\Telemetry\Controllers;
+<?php namespace GaletteTelemetry\Controllers;
 
-use GLPI\Telemetry\Models\Reference as ReferenceModel;
-use GLPI\Telemetry\Models\DynamicReference;
+use GaletteTelemetry\Models\Reference as ReferenceModel;
+use GaletteTelemetry\Models\DynamicReference;
 use PHPMailer\PHPMailer\PHPMailer;
 use Slim\Http\Request;
 use Slim\Http\Response;

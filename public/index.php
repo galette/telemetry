@@ -3,13 +3,13 @@
 require '../app/init.php';
 
 // route: default
-$app->get('/', 'GLPI\Telemetry\Controllers\Telemetry:view')
+$app->get('/', 'GaletteTelemetry\Controllers\Telemetry:view')
     ->setName('telemetry');
 
 /** References */
 //References list
-$app->get('/reference[/page/{page:\d+}]', 'GLPI\Telemetry\Controllers\Reference:view')
-   ->add(new GLPI\Telemetry\Middleware\CsrfView($container))
+$app->get('/reference[/page/{page:\d+}]', 'GaletteTelemetry\Controllers\Reference:view')
+   ->add(new GaletteTelemetry\Middleware\CsrfView($container))
    ->add($container['csrf'])
    ->setName('reference');
 
@@ -17,27 +17,27 @@ $app->get('/reference[/page/{page:\d+}]', 'GLPI\Telemetry\Controllers\Reference:
 $app->map(
     ['get', 'post'],
     '/reference/{action:filter|order}[/{value}]',
-    'GLPI\Telemetry\Controllers\Reference:filter'
+    'GaletteTelemetry\Controllers\Reference:filter'
 )
-   ->add(new GLPI\Telemetry\Middleware\CsrfView($container))
+   ->add(new GaletteTelemetry\Middleware\CsrfView($container))
    ->add($container['csrf'])
    ->setName('filterReferences');
 
 //Reference registration
-$app->post('/reference', 'GLPI\Telemetry\Controllers\Reference:register')
+$app->post('/reference', 'GaletteTelemetry\Controllers\Reference:register')
    ->add($recaptcha)
    ->add($container['csrf'])
    ->setName('registerReference');
 /** /References */
 
 // telemetry
-$app->get('/telemetry', 'GLPI\Telemetry\Controllers\Telemetry:view');
-$app->post('/telemetry', 'GLPI\Telemetry\Controllers\Telemetry:send')
-   ->add(new \GLPI\Telemetry\Middleware\JsonCheck($container));
-$app->get('/telemetry/geojson', 'GLPI\Telemetry\Controllers\Telemetry:geojson')
+$app->get('/telemetry', 'GaletteTelemetry\Controllers\Telemetry:view');
+$app->post('/telemetry', 'GaletteTelemetry\Controllers\Telemetry:send')
+   ->add(new \GaletteTelemetry\Middleware\JsonCheck($container));
+$app->get('/telemetry/geojson', 'GaletteTelemetry\Controllers\Telemetry:geojson')
     ->setName('geojson');
 
-$app->get('/telemetry/schema.json', 'GLPI\Telemetry\Controllers\Telemetry:schema')
+$app->get('/telemetry/schema.json', 'GaletteTelemetry\Controllers\Telemetry:schema')
     ->setName('schema');
 
 $app->get(
@@ -57,12 +57,12 @@ $app->get(
 
 $app->get(
     '/telemetry/plugins/all',
-    'GLPI\Telemetry\Controllers\Telemetry:allPlugins'
+    'GaletteTelemetry\Controllers\Telemetry:allPlugins'
 )->setName('allPlugins');
 
 $app->post(
     '/references/filter',
-    'GLPI\Telemetry\Controllers\References\doFilter'
+    'GaletteTelemetry\Controllers\References\doFilter'
 )->setName('filter_references');
 
 // run slim

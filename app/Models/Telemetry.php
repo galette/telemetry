@@ -1,4 +1,4 @@
-<?php namespace GLPI\Telemetry\Models;
+<?php namespace GaletteTelemetry\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

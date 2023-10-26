@@ -1,4 +1,4 @@
-<?php namespace GLPI\Telemetry\Controllers;
+<?php namespace GaletteTelemetry\Controllers;
 
 use Slim\Container;
 use Slim\Views\Twig;

@@ -40,7 +40,7 @@ $container = $app->getContainer();
 //$app->add(new RKA\Middleware\SchemeAndHost());
 
 $container['project'] = function ($c) use ($config) {
-    $project = new \GLPI\Telemetry\Project($config['project']['name'], $c->logger);
+    $project = new \GaletteTelemetry\Project($config['project']['name'], $c->logger);
     $project->setConfig($config['project']);
     return $project;
 };

@@ -1,13 +1,13 @@
-<?php namespace GLPI\Telemetry\Controllers;
+<?php namespace GaletteTelemetry\Controllers;
 
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 
-use GLPI\Telemetry\Models\Telemetry  as TelemetryModel;
-use GLPI\Telemetry\Models\GlpiPlugin as GlpiPluginModel;
-use GLPI\Telemetry\Models\Reference  as ReferenceModel;
-use GLPI\Telemetry\Models\TelemetryGlpiPlugin;
+use GaletteTelemetry\Models\Telemetry  as TelemetryModel;
+use GaletteTelemetry\Models\GlpiPlugin as GlpiPluginModel;
+use GaletteTelemetry\Models\Reference  as ReferenceModel;
+use GaletteTelemetry\Models\TelemetryGlpiPlugin;
 
 class Telemetry extends ControllerAbstract
 {

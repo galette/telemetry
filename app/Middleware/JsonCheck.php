@@ -1,5 +1,5 @@
 <?php
-namespace GLPI\Telemetry\Middleware;
+namespace GaletteTelemetry\Middleware;
 
 use Slim\Http\Request;
 use Slim\Http\Response;

@@ -1,6 +1,6 @@
 <?php
 
-namespace GLPI\Telemetry;
+namespace GaletteTelemetry;
 
 class Project
 {

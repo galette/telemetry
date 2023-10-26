@@ -12,7 +12,7 @@
    },
    "autoload": {
         "psr-4": {
-            "GLPI\\Telemetry\\": "app/"
+            "GaletteTelemetry\\": "app/"
         }
     },
     "require": {
