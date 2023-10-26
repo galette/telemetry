@@ -1,6 +1,5 @@
 <?php namespace GLPI\Telemetry\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Reference extends Model
