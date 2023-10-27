@@ -1,45 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <meta http-equiv="Cache-control" content="no-cache">
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+      <meta http-equiv="Cache-control" content="no-cache" />
 
-      <link rel="stylesheet" href="{{base_url()}}/libs/fontawesome/css/font-awesome.min.css" />
-      <link rel="stylesheet" href="{{base_url()}}/libs/bootstrap/css/bootstrap.min.css" />
-      <link rel="stylesheet" href="{{base_url()}}/css/base.css" />
+      <link rel="stylesheet" type="text/css" href="{{ base_url() }}/ui/semantic.min.css" />
+      <link rel="stylesheet" href="{{ base_url() }}/css/base.css" />
 
-      <link rel="icon" type="image/png" href="{{base_url()}}/pics/favicon.png" />
+      <link rel="icon" type="image/png" href="{{ base_url() }}/pics/favicon.png" />
 
       {% block head %}
         <title>Galette Telemetry - {% block title %}{% endblock %}</title>
       {% endblock %}
    </head>
    <body class="{{ class }}">
-      {% include "partials/alerts.html.twig" %}
-      {% include "partials/nav.html.twig" %}
+      <div class="ui centered top secondary menu">
+         <div class="ui text container">
+            <a href="{{ path_for("telemetry") }}" class="item">
+               <i class="database icon"></i>
+               Telemetry
+            </a>
+            <a href="{{ path_for('reference') }}" class="item">
+               <i class="users icon"></i>
+               References
+            </a>
+         </div>
+      </div>
 
-      <div id="page">
+      <!-- Page Contents -->
+      <div class="ui">
          {% block header %}
-         <div class="page-header {{myheader.class}}">
-            <div class="container">
-               <h1>{{myheader.title | raw}}</h1>
-               <p>{{myheader.text | raw}}</p>
+         <div class="ui vertical masthead center aligned segment page-header">
+            <div class="ui text container">
+               <h1 class="ui header">
+                  <i class="{{ myheader.icon }} icon"></i>
+                  {{ myheader.title }}
+               </h1>
+               <p>{{ myheader.text|raw }}</p>
             </div>
          </div>
          {% endblock %}
 
-         <div class="page-content">
-            {% block content %}{% endblock %}
+         {% block content %}{% endblock %}
+
+         <div class="ui inverted basic segment">
+            <div class="ui grid">
+               <div class="two column row">
+                  <div class="left floated column">
+                     <a href="https://galette.eu">
+                        <img src="pics/logo.png" alt="Galette"/>
+                     </a>
+                  </div>
+                  <div class="right aligned column">
+                     <div class="ui inverted link horizontal list">
+                        {% for text, link in footer_links %}
+                           <a href="{{ link.url }}" class="item">
+                              {%- if link.faclass is defined -%}
+                                 <i class="{{ link.faclass }}"></i>&nbsp;
+                              {%- endif -%}
+                              {{- text -}}
+                           </a>
+                        {% endfor %}
+                     </div>
+                     <p>© 2017-2023 GLPI - © 2023 <a href="https://galette.eu">Galette</a></p>
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
 
-      {% include "partials/footer.html.twig" %}
+      {% include "partials/alerts.html.twig" %}
 
-      <script src="{{base_url()}}/libs/jquery/jquery.min.js"></script>
-      <script src="{{base_url()}}/libs/tether/tether.min.js"></script>
-      <script src="{{base_url()}}/libs/bootstrap/js/bootstrap.min.js"></script>
-      <script src="{{base_url()}}/js/base.js"></script>
+      <script src="{{ base_url() }}/assets/js/jquery.min.js"></script>
+      <script src="{{ base_url() }}/ui/semantic.min.js"></script>
+      <script src="{{ base_url() }}/assets/js/main.bundle.min.js"></script>
       {% block userscripts %}{% endblock %}
     </body>
 </html>

@@ -67,3 +67,7 @@ jobs:
       - name: PHPStan checks
         run: |
           vendor/bin/phpstan analyze --ansi --memory-limit=2G --no-interaction --no-progress
+
+      - name: Twig CS
+        run: |
+          vendor/bin/twigcs app/Templates --severity error --display blocking

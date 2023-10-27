@@ -1,254 +1,219 @@
 {% extends "partials/base.html.twig" %}
 {% block title %}References{% endblock %}
-{% block head %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{base_url()}}/libs/country-flags-sass/flags.css" />
-    <link rel="stylesheet" href="{{base_url()}}/libs/select2/css/select2.min.css" />
-{% endblock %}
 
 {% block header %}
-{% set myheader= {
-   'title': '<i class="fa fa-users"></i> References',
-   'text':  'We maintain a public database of registered Galette installations.
-             You may want register <a id="register" href="#" data-toggle="modal" data-target="#register_reference">your own</a>!',
+{% set myheader = {
+   'title': 'References',
+   'icon': 'users',
+   'text': '<a title="Do you also use Galette? Add your own reference!" id="register" href="#" class="ui icon button tooltip" data-toggle="modal" data-target="#register_reference"><i class="user plus icon"></i> register your instance</a>',
 } %}
 {{ parent() }}
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="ui container">
+    <div class="ui center aligned info message">
     <h4>
-        {{total}} users already registered their Galette installations
-        {% if filters.count is defined and filters.count != total %} <span class="small">({{ filters.count }} found)</span>{% endif %}
+        {% if filters.count is defined and filters.count != total %}
+            {{ filters.count }} on {{ total }} registered Galette installations
+        {% else %}
+            {{ total }} registered Galette installations
+        {% endif %}
     </h4>
+    </div>
 
     <form id="filter_references" action="{{ path_for('filterReferences', {'action': 'filter'}) }}" method="POST">
-        <div class="row">
-            <div class="col">
-                <input name="filter_name" id="filter_name" type="text" class="form-control form-control-sm" placeholder="Name" value="{{filters.name|default('')}}">
+        <div class="ui form">
+            <div class="inline fields">
+                <div class="eight wide field">
+                    <input name="filter_name" id="filter_name" type="text" class="form-control form-control-sm" placeholder="Name" value="{{ filters.name|default('') }}">
+                </div>
+                <div class="seven wide field">
+                    <div class="ui fluid search clearable selection dropdown">
+                        <input type="hidden" name="filter_country" value="{{ filters.country ?? '' }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Country</div>
+                        <div class="menu">
+                            {% for country in countries %}
+                                {% if country.cca2|lower in ref_countries %}
+                                    <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="one wide field right aligned">
+                    <button type="submit" class="ui compact primary icon button" title="Search"><i class="search icon"></i> <span class="displaynone">Search</span></button>
+                    <button type="submit" class="ui compact icon button" name="reset_filters" title="Reset"><i class="times icon"></i> <span class="displaynone">Reset</span></button>
+                </div>
             </div>
-            <div class="col">
-                <select class="form-control"
-                        id="filter_country"
-                        name="filter_country"
-                        placeholder="Select a country">
-                    <option>Select a country</option>
-                    {% for country in countries %}
-                        {% if country.cca2|lower in ref_countries %}
-                    <option value="{{country.cca2}}"{% if filters.country is defined and filters.country == country.cca2 %} selected="selected"{% endif %}>{{country.name.common}}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-
-            </div>
-            <div class="col-md-auto">
-                <button type="submit" class="btn btn-dark btn-sm">
-                    <i class="fa fa-search"></i>
-                    <span class="sr-only">Search</span>
-                </button>
-                <button type="submit" class="btn btn-sm" name="reset_filters">
-                    <i class="fa fa-trash-o"></i>
-                    <span class="sr-only">Reset</span>
-                </button>
-            </div>
-
         </div>
-        {{ csrf.field | raw }}
+        {{ csrf.field|raw }}
     </form>
 
-   <table class="table table-striped glpi_references">
-      <thead>
-         <tr>
-            <td>
-               {% if orderby == 'name' %}<i class="fa fa-sort-{{sort}}"></i>{% endif %}
-               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'name'}) }}">Name</a>
-            </td>
-            <td>
-               {% if orderby == 'country' %}<i class="fa fa-sort-{{sort}}"></i>{% endif %}
-               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'country'}) }}">Country</a>
-            </td>
-    {% if dyn_refs|length > 0 %}
-        {% for key, conf in dyn_refs %}
-            {% if conf.in_list is not defined or conf.in_list == true %}
-            <td>
-               {% if orderby == key %}<i class="fa fa-sort-{{sort}}"></i>{% endif %}
-               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': key}) }}">{{conf.short_label}}</a>
-            </td>
-            {% endif %}
+    <table class="ui celled selectable striped table">
+        <thead>
+        <tr>
+            <th>
+                {% if orderby == 'name' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
+                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'name'}) }}">Name</a>
+            </th>
+            <th>
+                {% if orderby == 'country' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
+                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'country'}) }}">Country</a>
+            </th>
+            <th>
+                {% if orderby == 'num_members' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
+                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'num_members'}) }}">Members</a>
+            </th>
+            <th>
+                {% if orderby == 'created_at' %}<i class="fa fa-sort-{{ sort }}"></i>{% endif %}
+                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'created_at'}) }}">Registration date</a>
+            </th>
+            <th>
+                Comment
+            </th>
+        </tr></thead>
+        <tbody>
+        {% for reference in references %}
+            <tr>
+                <td class="single line">
+                    {% if reference.url %}
+                        <a href="{{ reference.url }}" target="_blank">{{ reference.name }}</a>
+                    {% else %}
+                        {{ reference.name }}
+                    {% endif %}
+                </td>
+                <td class="fitted single line">
+                    <i class="{{ reference.country|lower }} flag"></i>{{ countries_names[reference.country] }}
+                </td>
+                <td class="right aligned">{{ reference.num_members }}</td>
+                <td>{{ reference.created_at|date("Y-m-d") }}</td>
+                <td class="ellipsis tooltip" title="{{ reference.comment }}">
+                    {{ reference.comment }}
+                </td>
+            </tr>
         {% endfor %}
-    {% endif %}
-            <td>
-               {% if orderby == 'created_at' %}<i class="fa fa-sort-{{sort}}"></i>{% endif %}
-               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'created_at'}) }}">Registration date</a>
-            </td>
-            <td>
-               Comment
-            </td>
-         </tr>
-      </thead>
-      <tbody>
-         {% for reference in references %}
-         <tr>
-             <td>
-                 {% if reference.url %}
-                     <a href="{{reference.url}}" target="_blank">{{reference.name}}</a>
-                 {% else %}
-                     {{reference.name}}
-                 {% endif %}
-            </td>
-            <td>
-               <span class="flag flag-{{reference.country}}" title="{{reference.country}}"></span>
-            </td>
-    {% if dyn_refs|length > 0 %}
-        {% for key, conf in dyn_refs|keys %}
-            {% if conf.in_list is not defined or conf.in_list == true %}
-            <td>{{reference[key]}}</td>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-            <td>{{reference.created_at|date("Y-m-d") }}</td>
-            <td>
-               <div class="elipsis" title="{{reference.comment}}">
-                  {{reference.comment}}
-               </div>
-            </td>
-         </tr>
-         {% endfor %}
-      </tbody>
-   </table>
+        </tbody>
+        {% if references.hasPages() %}
+        <tfoot>
+            <tr>
+                <th colspan="5">
+                    {% set nearby_pages_limit = 5 %}
+                    {% set current = references.currentPage() %}
+                    <div class="ui right floated pagination menu">
+                        {% for i in 1..references.lastPage() %}
+                            {% if 0 == (current - nearby_pages_limit) - loop.index %}
+                                <a class="icon item" href="{{ references.url(1) }}">
+                                    <i class="fast backward icon tooltip" title="First page"></i>
+                                </a>
+                                {% if 1 != loop.index %}
+                                    <a href="javascript:void(0)" class="item">...</a>
+                                {% endif %}
+                            {% elseif 0 == (current + nearby_pages_limit) - loop.index and (current + nearby_pages_limit) < references.lastPage() %}
+                                <a href="javascript:void(0)" class="item">...</a>
+                            {% elseif 0 < (current - nearby_pages_limit) - loop.index %}
+                            {% elseif 0 > (current + nearby_pages_limit) - loop.index %}
+                            {% else %}
+                                <a href="{{ references.url(loop.index) }}" class="item{{ current == loop.index ? ' active' }}">{{ loop.index }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if current != references.lastPage() and (current + nearby_pages_limit) < references.lastPage() %}
+                            <a href="{{ references.url(references.lastPage()) }}" class="icon item">
+                                <i class="fast forward icon tooltip" title="Last page ({{ references.lastPage() }})"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
 
-   <nav aria-label="Page navigation">
-       {% set nearbyPagesLimit = 10 %}
-       {% set current = references.currentPage() %}
-       {% if references.hasPages() %}
-           <ul class="pagination my-4">
-               {% for i in 1..references.lastPage() %}
-                   {% if 0 == (current - nearbyPagesLimit) - loop.index %}
-                       <li class="page-item"><a href="{{ references.url(1) }}" class="page-link">1</a></li>
-                       {% if 1 != loop.index %}
-                           <li class="page-item">
-                               <a href="javascript:void(0)" class="page-link">...</a>
-                           </li>
-                       {% endif %}
-                   {% elseif 0 == (current + nearbyPagesLimit) - loop.index  and (current + nearbyPagesLimit) < references.lastPage() %}
-                       <li class="page-item">
-                           <a href="javascript:void(0)" class="page-link">...</a>
-                       </li>
-                   {% elseif 0 < (current - nearbyPagesLimit) - loop.index %}
-                   {% elseif 0 > (current + nearbyPagesLimit) - loop.index %}
-                   {% else %}
-                       <li class="page-item{{ current == loop.index ? ' active' }}">
-                           <a href="{{ references.url(loop.index) }}" class="page-link">{{ loop.index }}</a>
-                       </li>
-                   {% endif %}
-               {% endfor %}
-               {% if current != references.lastPage()  and (current + nearbyPagesLimit) < references.lastPage() %}
-                   <li class="page-item"><a href="{{ references.url(references.lastPage()) }}" class="page-link">{{ references.lastPage() }}</a></li>
+    <div class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">Register your own instance</div>
+        <div class="ui form content">
+            <form method="POST" id="new_reference" action="{{ path_for('registerReference') }}">
+                <div class="field">
+                   <label for="name">Name (company name)</label>
+                   <input type="text" required="required"  name="name" id="name" placeholder="Your (company) name" />
+               </div>
+
+               <div class="field">
+                   <label for="url">URL</label>
+                   <input type="url"  name="url" id="url" placeholder="URL" />
+               </div>
+
+               <div class="field">
+                   <label for="countries_select">Country</label>
+                   <div class="ui fluid search clearable selection dropdown">
+                       <input type="hidden" name="country">
+                       <i class="dropdown icon"></i>
+                       <div class="default text">Select Country</div>
+                       <div class="menu">
+                           {% for country in countries %}
+                               <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
+                           {% endfor %}
+                       </div>
+                   </div>
+               </div>
+
+               <div class="field">
+                   <label for="phone">Phone</label>
+                   <input type="text" name="phone" id="phone"  placeholder="Phone">
+               </div>
+
+               <div class="field">
+                   <label for="email">Email</label>
+                   <input type="email" name="email" id="email" placeholder="Email">
+               </div>
+
+               <div class="field">
+                   <label for="referent">Referent name</label>
+                   <input type="text" name="referent" id="referent" placeholder="Referent name">
+               </div>
+
+               {% if dyn_refs|length > 0 %}
+                   {% for key, conf in dyn_refs %}
+                       <div class="field">
+                           {% if conf.type is not defined or conf.type == 'number' %}
+                               <label for="{{ key }}">{{ conf.label }}</label>
+                               <input type="number" name="{{ key }}" id="{{ key }}" min="0" placeholder="{{ conf.label }}">
+                           {% elseif conf.type == 'boolean' %}
+                               <input class="form-check-input" type="checkbox" name="{{ key }}" id="{{ key }}" value="1"{% if conf.checked is defined and conf.checked == true %} checked="checked"{% endif %}/>
+                               <label class="form-check-label form-control-sm text-muted" for="{{ key }}">{{ conf.label }}</label>
+                           {% elseif mode == 'DEV' %}
+                               <div class="alert alert-danger">Not a known type :(</div>
+                           {% endif %}
+                       </div>
+                   {% endfor %}
                {% endif %}
-           </ul>
-       {% endif %}
-   </nav>
 
-   <form method="post">
-   <div class="modal fade" id="register_reference">
-      <div class="modal-dialog" role="document">
-         <div class="modal-content">
-            <div class="modal-header">
-               <h5 class="modal-title">Register your own instance</h5>
-               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-               </button>
-            </div>
-            <div class="modal-body">
-               <div class="form-group">
-                  <label class="sr-only" for="name">Name (company name)</label>
-                  <input class="form-control form-control-sm" type="text"
-                        required="required"
-                        name="name" id="name"
-                        placeholder="Your (company) name">
+               <div class="field">
+                   <label for="comment">Comment</label>
+                   <textarea name="comment" id="comment" rows="3" placeholder="Your message"></textarea>
                </div>
 
-               <div class="form-group">
-                  <label class="sr-only" for="url">Url</label>
-                  <input class="form-control form-control-sm" type="url"
-                         name="url" id="url"
-                         placeholder="URL">
-               </div>
+               {% if mode != 'DEV' %}
+                   <div class="g-recaptcha" data-sitekey="{{ recaptchasitekey }}"></div>
+               {% endif %}
 
-               <div class="form-group">
-                  <label class="sr-only" for="countries_select">Country</label>
-                  <select class="form-control"
-                          id="countries_select"
-                          name="country"
-                          placeholder="Country">
-                     <option></option>
-                     {% for country in countries %}
-                     <option value="{{country.cca2}}">{{country.name.common}}</option>
-                     {% endfor %}
-                  </select>
-               </div>
-
-               <div class="form-group">
-                  <label class="sr-only" for="phone">Phone</label>
-                  <input class="form-control form-control-sm" type="text"
-                         name="phone" id="phone"
-                         placeholder="Phone">
-               </div>
-
-               <div class="form-group">
-                  <label class="sr-only" for="email">Email</label>
-                  <input class="form-control form-control-sm" type="email"
-                         name="email" id="email"
-                         placeholder="Email">
-               </div>
-
-               <div class="form-group">
-                  <label class="sr-only" for="referent">Referent name</label>
-                  <input class="form-control form-control-sm" type="text"
-                         name="referent" id="referent"
-                         placeholder="Referent name">
-               </div>
-
-    {% if dyn_refs|length > 0 %}
-        {% for key, conf in dyn_refs %}
-               <div class="form-group{% if conf.type == 'boolean' %} form-check{% endif %}">
-            {% if conf.type is not defined or conf.type == 'number' %}
-                  <label class="sr-only" for="{{key}}">{{conf.label}}</label>
-                  <input class="form-control form-control-sm" type="number"
-                         name="{{key}}" id="{{key}}"
-                         min="0"
-                         placeholder="{{conf.label}}">
-            {% elseif conf.type == 'boolean' %}
-                  <input class="form-check-input" type="checkbox" name="{{ key }}" id="{{ key }}" value="1"{% if conf.checked is defined and conf.checked == true %} checked="checked"{% endif %}/>
-                  <label class="form-check-label form-control-sm text-muted" for="{{key}}">{{ conf.label }}</label>
-            {% elseif mode == 'DEV' %}
-                <div class="alert alert-danger">Not a known type :(</div>
-            {% endif %}
-               </div>
-        {% endfor %}
-    {% endif %}
-
-               <div class="form-group">
-                  <label class="sr-only" for="comment">Comment</label>
-                  <textarea class="form-control form-control-sm"
-                            name="comment" id="comment"
-                            rows="6"
-                            placeholder="Your message"></textarea>
-               </div>
-    {% if mode != 'DEV' %}
-               <div class="g-recaptcha" data-sitekey="{{ recaptchasitekey }}"></div>
-    {% endif %}
-            </div>
-            <div class="modal-footer">
-               <input type="hidden" name="uuid" value="{{uuid}}" />
-               <button type="submit" class="btn btn-outline-primary">Register</button>
-               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-         </div>
-      </div>
-   </div>
-   {{ csrf.field | raw }}
-   </form>
+                <input type="hidden" name="uuid" value="{{ uuid }}" />
+                {{ csrf.field|raw }}
+            </form>
+        </div>
+        <div class="actions">
+            <button type="button" class="ui button  right labeled icon deny">
+                Cancel
+                <i class="times icon"></i>
+            </button>
+            <button type="submit" class="ui positive right labeled icon button">
+                Register
+                <i class="checkmark icon"></i>
+            </button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -258,28 +223,29 @@
 {% if mode != 'DEV' %}
 <script src='https://www.google.com/recaptcha/api.js'></script>
 {% endif %}
-<script src="{{base_url()}}/libs/select2/js/select2.min.js"></script>
 
 <script type="text/javascript">
-
 $(document).ready(function() {
-    $("#countries_select").select2({
-        templateSelection: formatState,
-        templateResult: formatState,
-        placeholder: "Country",
-        width: '100%',
-        dropdownParent: $('#register_reference')
-    });
+    $('.ui.dropdown')
+        .dropdown()
+    ;
 
-    $("#filter_country").select2({
-        templateSelection: formatState,
-        templateResult: formatState,
-        width: '100%',
+    var _modal = function() {
+        $('.ui.modal').modal({
+            onApprove: function() {
+                $('#new_reference').submit();
+            }
+        }).modal('show');
+    }
+
+    $('#register').click(function(e) {
+        e.preventDefault();
+        _modal();
     });
 
    {% if showmodal == true %}
    // if get parameter showmodal is present, show the corresponding modal
-   $("#register_reference").modal('show');
+   _modal();
    {% endif %}
 });
 </script>

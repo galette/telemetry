@@ -1,0 +1,23 @@
+{
+  "base": "semantic/",
+  "paths": {
+    "source": {
+      "config": "src/theme.config",
+      "definitions": "src/definitions/",
+      "site": "src/site/",
+      "themes": "src/themes/"
+    },
+    "output": {
+      "packaged": "../public/ui/",
+      "uncompressed": "../public/ui/components/",
+      "compressed": "../public/ui/components/",
+      "themes": "../public/ui/themes/"
+    },
+    "clean": "dist/"
+  },
+  "permission": "644",
+  "autoInstall": true,
+  "rtl": false,
+  "components": ["reset", "site", "button", "container", "divider", "header", "icon", "input", "label", "list", "loader", "segment", "step", "form", "grid", "menu", "message", "table", "card", "item", "accordion", "checkbox", "dimmer", "dropdown", "popup", "sidebar", "tab", "transition", "text", "calendar", "toast", "modal", "api", "search", "emoji", "flag"],
+  "version": "2.9.3"
+}

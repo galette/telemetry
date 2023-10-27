@@ -1,44 +1,3 @@
-
-
-.telemetry_form {
-   margin: 0 auto;
-   padding: 0 0 0 50px;
-}
-
-.telemetry_form .form-group {
-   width: 150px;
-   border: 2px solid #509ee3;
-   margin-right: .85em;
-   margin-bottom: .5em;
-   padding: .25em 1em;
-   border-radius: 4px;
-}
-
-.telemetry_form .form-group legend {
-   font-size: 0.83em;
-   color: #959595;
-   position: relative;
-   height: 2px;
-   line-height: 0;
-   margin: 0 0 0-.45em;
-   padding: 0 .5em;
-   width: 80px;
-}
-
-.telemetry_form .form-group select {
-   border: none;
-   background-color: transparent;
-   height: 1.8rem !important;
-   padding: 0;
-   color: #509ee3;
-   font-weight: bold;
-   font-size: 0.9rem;
-}
-
-.telemetry_form .form-group option {
-   color: grey;
-}
-
 /** charts **/
 .dashboard {
    margin: 0 auto;
@@ -57,8 +16,16 @@
    padding: 5px;
 }
 
-.chart-05 {
-   width: 175px;
+.chart .header {
+   padding: .3em;
+}
+
+.chart .header > i {
+   cursor: pointer;
+}
+
+.chart .header > i:hover {
+   opacity: .5;
 }
 
 .chart-2 {
@@ -75,29 +42,10 @@
    min-height: 420px;
 }
 
-.chart button i {
-   color: #CCC;
-}
 .chart .card {
    border: none;
-   /*min-height: 380px;*/
    box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
 }
-
-.chart .card-header {
-   background-color: #FFF;
-   border: none;
-}
-
-.chart .card-header .fa {
-   font-size: .8em;
-   outline-color: transparent;
-}
-
-.chart .card-header h3 {
-   font-size: 1.2rem;
-}
-
 
 .chart .description {
    font-size: .8em;
@@ -118,69 +66,49 @@
 
 .big-number {
    font-size: 6rem;
+   line-height: 12rem;
    text-align: center;
    text-shadow: 2px 2px 3px rgba(0,0,0,0.5);
 }
 
+.card-header .ui.basic.button:hover, .card-header .ui.basic.buttons .button:hover {
+   background-color: #666;
+}
+
 #chart-nb_telemetry_entries,
-#chart-nb_telemetry_entries .card-header,
-#chart-nb_telemetry_entries .card-header i {
+#chart-nb_telemetry_entries .card-header {
    background-color: #BBE1C3;
    color: #1E4526;
 }
 
 #chart-nb_reference_entries,
-#chart-nb_reference_entries .card-header,
-#chart-nb_reference_entries .card-header i {
+#chart-nb_reference_entries .card-header {
    background-color: #E9B59F;
    color: #C24A19;
 }
 
 #chart-top_plugins {
-   background-color: #529AA5
+   background-color: #529AA5;
 }
-#chart-top_plugins .card-header,
-#chart-top_plugins .card-header i {
+#chart-top_plugins .header,
+#chart-top_plugins .header i {
    background-color: #56ABB9;
    color: #FFF;
 }
 
-#chart-top_plugins i,
-#chart-top_plugins .ct-label {
-   color: #BEE1E7;
-}
-
-#chart-top_plugins .ct-series .ct-bar {
-stroke: #22727B;
-}
-
 #chart-os_family,
-#chart-os_family .card-header,
-#chart-os_family .card-header i {
+#chart-os_family .header {
    background-color: #E9AA63;
    color: #4E3C28;
 }
 
-#chart-os_family i,
-#chart-os_family .ct-label {
-   fill: #4E3C28;
-}
-
 #chart-web_engines,
-#chart-web_engines .card-header,
-#chart-web_engines .card-header i {
+#chart-web_engines .header {
    background-color: #1A5197;
    color: #C8E0FF;
 }
 
-#chart-web_engines i,
-#chart-web_engines .ct-label {
-   fill: #C8E0FF;
-}
-
-#chart-references_countries,
-#chart-references_countries .card-header,
-#chart-references_countries .card-header i {
+#chart-references_countries {
    background-color: #d1d1d1;
    color: #4F4F4F;
 }

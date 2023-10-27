@@ -1,22 +1,24 @@
-{% set flashMessages = flash.getMessages() %}
-{% if flashMessages|length > 0%}
-<div class="notify">
-    {% for alert_type, alerts in flashMessages %}
-        {% set faclass -%}
-            {%- if alert_type == 'success' -%}
-                check
-            {%- elseif alert_type == 'error' -%}
-                exclamation-triangle
-            {%- elseif alert_type == 'warn' -%}
-                exclamation
-            {%- endif -%}
-        {%- endset %}
+{% set flash_messages = flash.getMessages() %}
+{% if flash_messages|length > 0%}
+    {% for alert_type, alerts in flash_messages %}
+        {%- if alert_type == 'success' -%}
+            {% set toast_class -%}success{% endset %}
+            {% set icon_class -%}check circle outline{% endset %}
+        {%- elseif alert_type == 'error' -%}
+            {% set toast_class -%}error{% endset %}
+            {% set icon_class -%}bomb{% endset %}
+        {%- elseif alert_type == 'warn' -%}
+            {% set toast_class -%}warning{% endset %}
+            {% set icon_class -%}exclamation triangle{% endset %}
+        {%- endif -%}
+
         {% for msg in alerts %}
-    <div class="{{alert_type}}">
-        <i class="fa fa-{{faclass}}"></i>
-        {{msg}}
-    </div>
+        <div class="ui {{ toast_class }} toast toast-message">
+            <div class="content">
+                <i class="ui {{ icon_class }} icon"></i>
+                {{ msg }}
+            </div>
+        </div>
         {% endfor %}
     {% endfor %}
-</div>
 {% endif %}
