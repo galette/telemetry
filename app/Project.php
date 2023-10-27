@@ -4,8 +4,7 @@ namespace GaletteTelemetry;
 
 class Project
 {
-    private $name;
-    private $slug;
+    private $slug = 'galette';
     private $url;
     private $schema_usage;
     private $schema_plugins = true;
@@ -33,31 +32,11 @@ class Project
     /**
      * Constructor
      *
-     * @param string $name   Project name
-     * @param mixed  $logger Logger
+     * @param mixed $logger Logger
      */
-    public function __construct($name, $logger = null)
+    public function __construct($logger = null)
     {
         $this->logger = $logger;
-        $this->name = $name;
-        $this->slug = strtolower(
-            trim(
-                preg_replace(
-                    '~[^0-9a-z]+~i',
-                    '-',
-                    preg_replace(
-                        '~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i',
-                        '$1',
-                        htmlentities(
-                            $name,
-                            ENT_QUOTES,
-                            'UTF-8'
-                        )
-                    )
-                ),
-                ' '
-            )
-        );
         $this->project_path = __DIR__ . '/../projects/' . $this->slug;
     }
 
@@ -334,16 +313,6 @@ class Project
         }
 
         return $string;
-    }
-
-    /**
-     * Get project name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**

@@ -27,8 +27,6 @@ if (TELEMETRY_MODE == 'DEV') {
 $valid_conf = true;
 if (!isset($config['project']) || empty($config['project'])) {
     throw new \DomainException('project is mandatory in configuration');
-} elseif (!isset($config['project']['name']) || empty($config['project']['name'])) {
-    throw new \DomainException('project name is mandatory in configuration');
 }
 
 // autoload composer libs
@@ -40,7 +38,7 @@ $container = $app->getContainer();
 //$app->add(new RKA\Middleware\SchemeAndHost());
 
 $container['project'] = function ($c) use ($config) {
-    $project = new \GaletteTelemetry\Project($config['project']['name'], $c->logger);
+    $project = new \GaletteTelemetry\Project($c->logger);
     $project->setConfig($config['project']);
     return $project;
 };
@@ -107,9 +105,6 @@ $container['view'] = function ($c) {
 
     // add countries geo data
     $env->addGlobal('countries', $c['countries'], true);
-
-    //Project name
-    $env->addGlobal('project_name', $c->project->getName());
 
     //footer links
     $env->addGlobal('footer_links', $c->project->getFooterLinks());
