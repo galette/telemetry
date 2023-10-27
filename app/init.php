@@ -42,11 +42,6 @@ $container['project'] = function ($c) use ($config) {
     return $project;
 };
 
-// set our json spec in container
-$container['json_spec'] = function ($c) {
-    return $c->project->getExampleData();
-};
-
 // setup db connection
 $capsule = new \Illuminate\Database\Capsule\Manager;
 $capsule->addConnection($container->get('settings')['db']);

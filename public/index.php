@@ -41,14 +41,6 @@ $app->get('/telemetry/schema.json', 'GaletteTelemetry\Controllers\Telemetry:sche
     ->setName('schema');
 
 $app->get(
-    '/json-data-example',
-    function ($request, $response) {
-        $response->getBody()->write($this->project->getExampleData());
-        return $response;
-    }
-)->setName('jsonExemple');
-
-$app->get(
     '/telemetry/plugins/all',
     'GaletteTelemetry\Controllers\Telemetry:allPlugins'
 )->setName('allPlugins');

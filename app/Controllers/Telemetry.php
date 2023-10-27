@@ -215,8 +215,7 @@ class Telemetry extends ControllerAbstract
             'form' => [
                 'years' => $years
             ],
-            'class' => 'telemetry',
-            'json_data_example' => $this->container['json_spec']
+            'class' => 'telemetry'
         ] + $dashboard);
 
         return $response;

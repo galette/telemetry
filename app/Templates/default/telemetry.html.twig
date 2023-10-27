@@ -14,8 +14,7 @@
 
 {% set myheader= {
    'title': '<i class="fa fa-bar-chart"></i> Telemetry',
-   'text':  'Since Galette 0.9, we collect anonymous
-             <a id="register" href="#" data-toggle="modal" data-target="#json_data_example">data</a> from instance of voluntary users.'
+   'text':  'Since Galette 0.9, we collect <strong>anonymous data</strong> from instances of voluntary users.'
 } %}
 {{ parent() }}
 {% endblock %}
@@ -164,22 +163,6 @@
       {% include 'partials/chart.html.twig' with vars %}
       </div>
     {% endif %}
-   </div>
-</div>
-
-<div class="modal fade" id="json_data_example">
-   <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title">Example of Json data sent by Galette</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-         </div>
-         <div class="modal-body">
-            <pre><code class="language-json">{{json_data_example | raw}}</code></pre>
-         </div>
-      </div>
    </div>
 </div>
 {% endblock %}
