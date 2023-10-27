@@ -367,20 +367,6 @@ class Project
     }
 
     /**
-     * Does project provide a logo
-     *
-     * @return boolean
-     */
-    public function getLogo()
-    {
-        $file = __DIR__ . '/../public/pics/logo.png';
-        if (file_exists($this->project_path . '/logo.png')) {
-            $file = $this->project_path . '/logo.png';
-        }
-        return file_get_contents($file);
-    }
-
-    /**
      * Get JSON example data
      *
      * @return string

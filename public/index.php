@@ -41,13 +41,6 @@ $app->get('/telemetry/schema.json', 'GaletteTelemetry\Controllers\Telemetry:sche
     ->setName('schema');
 
 $app->get(
-    '/logo.png',
-    function ($request, $response) {
-        echo $this->project->getLogo();
-    }
-)->setName('logo');
-
-$app->get(
     '/json-data-example',
     function ($request, $response) {
         $response->getBody()->write($this->project->getExampleData());
