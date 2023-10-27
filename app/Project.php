@@ -1,38 +1,24 @@
 <?php
 
-namespace GLPI\Telemetry;
+namespace GaletteTelemetry;
 
 class Project
 {
-    private $name;
-    private $slug;
+    private $slug = 'galette';
     private $url;
     private $schema_usage;
     private $schema_plugins = true;
     private $mapping = [];
     private $logger;
     private $project_path;
-    private $templates_path;
-    private $enable_contact = true;
-    private $footer_links = [
-        'GLPI project'  => [
-            'faclass'   => 'fa fa-globe',
-            'url'       => 'http://glpi-project.org'
-        ],
-        'Plugins'       => [
-            'faclass'   => 'fa fa-puzzle-piece',
-            'url'       => 'http://plugins.glpi-project.org'
-        ],
-        'Forum'         => [
-            'faclass'   => 'fa fa-comments-o',
-            'url'       => 'http://forum.glpi-project.org'
-        ],
-        'Suggest'       => [
-            'faclass'   => 'fa fa-lightbulb-o',
-            'url'       => 'http://suggest.glpi-project.org'
-        ]
-    ];
+    private array $footer_links = [];
     private $dyn_references = [
+        'can_prospect'  => [
+            'label'     => 'I agree to receive emails from GLPI and Teclib (including Newsletters, as well as promotional offers and announcements)',
+            'in_list'   => false,
+            'checked'   => true,
+            'type'      => 'boolean'
+        ],
         'num_assets'    => [
             'label'         => 'Number of assets',
             'short_label'   => '# assets'
@@ -42,50 +28,16 @@ class Project
             'short_label'   => '# helpdesk'
         ]
      ];
-    private $dashboard = [
-       'nb_telemetry_entries' => true,
-       'nb_reference_entries' => true,
-       'php_versions'         => true,
-       'glpi_versions'        => true,
-       'top_plugins'          => true,
-       'os_family'            => true,
-       'default_languages'    => true,
-       'db_engines'           => true,
-       'web_engines'          => true,
-       'install_modes'        => true,
-       'references_countries' => true
-    ];
 
     /**
      * Constructor
      *
-     * @param string $name   Project name
-     * @param mixed  $logger Logger
+     * @param mixed $logger Logger
      */
-    public function __construct($name, $logger = null)
+    public function __construct($logger = null)
     {
         $this->logger = $logger;
-        $this->name = $name;
-        $this->slug = strtolower(
-            trim(
-                preg_replace(
-                    '~[^0-9a-z]+~i',
-                    '-',
-                    preg_replace(
-                        '~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i',
-                        '$1',
-                        htmlentities(
-                            $name,
-                            ENT_QUOTES,
-                            'UTF-8'
-                        )
-                    )
-                ),
-                ' '
-            )
-        );
         $this->project_path = __DIR__ . '/../projects/' . $this->slug;
-        $this->templates_path =  $this->project_path . '/Templates';
     }
 
     /**
@@ -101,10 +53,6 @@ class Project
 
         if (isset($config['url'])) {
             $this->url = $config['url'];
-        }
-
-        if (isset($config['enable_contact'])) {
-            $this->enable_contact = (bool)$config['enable_contact'];
         }
 
         if (isset($config['schema'])) {
@@ -123,13 +71,6 @@ class Project
             $this->dyn_references = $config['dyn_references'];
         }
 
-        if (isset($config['dashboard'])) {
-            $this->dashboard = array_merge(
-                $this->dashboard,
-                $config['dashboard']
-            );
-        }
-
         return $this;
     }
 
@@ -138,7 +79,7 @@ class Project
      *
      * @param array $config Configuration values
      *
-     * @return boolean
+     * @return void
      */
     public function checkConfig(array $config)
     {
@@ -172,6 +113,16 @@ class Project
                 throw new \UnexpectedValueException('Dynamic references configuration must be an array or false');
             }
         }
+
+        $known_types = [
+            'number',
+            'boolean'
+        ];
+        foreach ($this->dyn_references as $reference) {
+            if (isset($reference['type']) && !in_array($reference['type'], $known_types)) {
+                throw new \UnexpectedValueException('Unkown type ' . $reference['type']);
+            }
+        }
     }
 
     /**
@@ -198,7 +149,7 @@ class Project
     /**
      * Generate or retrieve project's schema
      *
-     * @param Zend\Cache\Storage\Adapter\AbstractAdapter|null $cache Cache instance
+     * @param Laminas\Cache\Storage\Adapter\AbstractAdapter|null $cache Cache instance
      *
      * @return json
      */
@@ -294,7 +245,6 @@ class Project
             'glpi_uuid' => $this->truncate($json[$slug]['uuid'], 41),
             'glpi_version' => $this->truncate($json[$slug]['version'], 25),
             'glpi_default_language' => $this->truncate($json[$slug]['default_language'], 10),
-            'install_mode' => $this->truncate($json[$slug]['install_mode'], 50),
             'db_engine' => $this->truncate($json['system']['db']['engine'], 50),
             'db_version' => $this->truncate($json['system']['db']['version'], 50),
             'db_size' => (int) $json['system']['db']['size'],
@@ -366,45 +316,6 @@ class Project
     }
 
     /**
-     * Get template path for project
-     *
-     * @return array
-     */
-    public function getTemplatesPath()
-    {
-        if (file_exists($this->templates_path)) {
-            return [$this->templates_path];
-        }
-        return [];
-    }
-
-    /**
-     * Get path for template
-     *
-     * @param string $tpl Template name
-     *
-     * @return string
-     */
-    public function pathFor($tpl)
-    {
-        $slug = 'default';
-        if (file_exists($this->templates_path . '/' . $this->getSlug() . '/' . $tpl)) {
-            $slug = $this->getSlug();
-        }
-        return $slug . '/' . $tpl;
-    }
-
-    /**
-     * Get project name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * Get project slug
      *
      * @return string
@@ -425,44 +336,6 @@ class Project
     }
 
     /**
-     * Does project provide a logo
-     *
-     * @return boolean
-     */
-    public function getLogo()
-    {
-        $file = __DIR__ . '/../public/pics/logo.png';
-        if (file_exists($this->project_path . '/logo.png')) {
-            $file = $this->project_path . '/logo.png';
-        }
-        return file_get_contents($file);
-    }
-
-    /**
-     * Get JSON example data
-     *
-     * @return string
-     */
-    public function getExampleData()
-    {
-        $file = __DIR__ . '/../misc/json-glpi.spec';
-        if (file_exists($this->project_path . '/json-' . $this->getSlug() . '.spec')) {
-            $file = $this->project_path . '/json-' . $this->getSlug() . '.spec';
-        }
-        return file_get_contents($file);
-    }
-
-    /**
-     * Is contact page active for current project
-     *
-     * @return boolean
-     */
-    public function hasContactPage()
-    {
-        return $this->enable_contact;
-    }
-
-    /**
      * Get footer links
      *
      * @return array
@@ -480,18 +353,5 @@ class Project
     public function getDynamicReferences()
     {
         return $this->dyn_references;
-    }
-
-    /**
-     * Get dashboard configuration
-     *
-     * @return array
-     */
-    public function getDashboardConfig()
-    {
-        if (false === $this->schema_plugins) {
-            $this->dashboard['top_plugins'] = false;
-        }
-        return $this->dashboard;
     }
 }

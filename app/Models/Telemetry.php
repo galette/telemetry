@@ -1,6 +1,8 @@
-<?php namespace GLPI\Telemetry\Models;
+<?php namespace GaletteTelemetry\Models;
 
-class Telemetry extends \Illuminate\Database\Eloquent\Model
+use Illuminate\Database\Eloquent\Model;
+
+class Telemetry extends Model
 {
     protected $table = 'telemetry';
     protected $guarded = [

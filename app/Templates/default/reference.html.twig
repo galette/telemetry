@@ -9,8 +9,8 @@
 {% block header %}
 {% set myheader= {
    'title': '<i class="fa fa-users"></i> References',
-   'text':  'We maintain a public database of registered %s installations.
-             You may want register <a id="register" href="#" data-toggle="modal" data-target="#register_reference">your own</a>!'|format(project_name),
+   'text':  'We maintain a public database of registered Galette installations.
+             You may want register <a id="register" href="#" data-toggle="modal" data-target="#register_reference">your own</a>!',
 } %}
 {{ parent() }}
 {% endblock %}
@@ -18,7 +18,7 @@
 {% block content %}
 <div class="container">
     <h4>
-        {{total}} users already registered their {{project_name}} installations
+        {{total}} users already registered their Galette installations
         {% if filters.count is defined and filters.count != total %} <span class="small">({{ filters.count }} found)</span>{% endif %}
     </h4>
 
@@ -68,11 +68,13 @@
                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'country'}) }}">Country</a>
             </td>
     {% if dyn_refs|length > 0 %}
-        {% for key, labels in dyn_refs %}
+        {% for key, conf in dyn_refs %}
+            {% if conf.in_list is not defined or conf.in_list == true %}
             <td>
                {% if orderby == key %}<i class="fa fa-sort-{{sort}}"></i>{% endif %}
-               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': key}) }}">{{labels.short_label}}</a>
+               <a href="{{ path_for('filterReferences', {'action': 'order', 'value': key}) }}">{{conf.short_label}}</a>
             </td>
+            {% endif %}
         {% endfor %}
     {% endif %}
             <td>
@@ -98,8 +100,10 @@
                <span class="flag flag-{{reference.country}}" title="{{reference.country}}"></span>
             </td>
     {% if dyn_refs|length > 0 %}
-        {% for key in dyn_refs|keys %}
+        {% for key, conf in dyn_refs|keys %}
+            {% if conf.in_list is not defined or conf.in_list == true %}
             <td>{{reference[key]}}</td>
+            {% endif %}
         {% endfor %}
     {% endif %}
             <td>{{reference.created_at|date("Y-m-d") }}</td>
@@ -114,7 +118,35 @@
    </table>
 
    <nav aria-label="Page navigation">
-      {{ references.render() |raw }}
+       {% set nearbyPagesLimit = 10 %}
+       {% set current = references.currentPage() %}
+       {% if references.hasPages() %}
+           <ul class="pagination my-4">
+               {% for i in 1..references.lastPage() %}
+                   {% if 0 == (current - nearbyPagesLimit) - loop.index %}
+                       <li class="page-item"><a href="{{ references.url(1) }}" class="page-link">1</a></li>
+                       {% if 1 != loop.index %}
+                           <li class="page-item">
+                               <a href="javascript:void(0)" class="page-link">...</a>
+                           </li>
+                       {% endif %}
+                   {% elseif 0 == (current + nearbyPagesLimit) - loop.index  and (current + nearbyPagesLimit) < references.lastPage() %}
+                       <li class="page-item">
+                           <a href="javascript:void(0)" class="page-link">...</a>
+                       </li>
+                   {% elseif 0 < (current - nearbyPagesLimit) - loop.index %}
+                   {% elseif 0 > (current + nearbyPagesLimit) - loop.index %}
+                   {% else %}
+                       <li class="page-item{{ current == loop.index ? ' active' }}">
+                           <a href="{{ references.url(loop.index) }}" class="page-link">{{ loop.index }}</a>
+                       </li>
+                   {% endif %}
+               {% endfor %}
+               {% if current != references.lastPage()  and (current + nearbyPagesLimit) < references.lastPage() %}
+                   <li class="page-item"><a href="{{ references.url(references.lastPage()) }}" class="page-link">{{ references.lastPage() }}</a></li>
+               {% endif %}
+           </ul>
+       {% endif %}
    </nav>
 
    <form method="post">
@@ -178,13 +210,20 @@
                </div>
 
     {% if dyn_refs|length > 0 %}
-        {% for key, labels in dyn_refs %}
-               <div class="form-group">
-                  <label class="sr-only" for="{{key}}">{{labels.label}}</label>
+        {% for key, conf in dyn_refs %}
+               <div class="form-group{% if conf.type == 'boolean' %} form-check{% endif %}">
+            {% if conf.type is not defined or conf.type == 'number' %}
+                  <label class="sr-only" for="{{key}}">{{conf.label}}</label>
                   <input class="form-control form-control-sm" type="number"
                          name="{{key}}" id="{{key}}"
                          min="0"
-                         placeholder="{{labels.label}}">
+                         placeholder="{{conf.label}}">
+            {% elseif conf.type == 'boolean' %}
+                  <input class="form-check-input" type="checkbox" name="{{ key }}" id="{{ key }}" value="1"{% if conf.checked is defined and conf.checked == true %} checked="checked"{% endif %}/>
+                  <label class="form-check-label form-control-sm text-muted" for="{{key}}">{{ conf.label }}</label>
+            {% elseif mode == 'DEV' %}
+                <div class="alert alert-danger">Not a known type :(</div>
+            {% endif %}
                </div>
         {% endfor %}
     {% endif %}

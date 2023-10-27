@@ -1,0 +1,21 @@
+{
+  "php-core-extensions": [
+    "core",
+    "standard",
+    "spl",
+    "json",
+    "pcre",
+    "session",
+    "mbstring"
+
+  ],
+  "symbol-whitelist": [
+    "Twig\\Extension\\DebugExtension",
+    "Illuminate\\Support\\Facades\\DB"
+  ],
+  "scan-files": [
+    "*.php",
+    "app/**/.php",
+    "public/*.php"
+  ]
+}

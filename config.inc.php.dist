@@ -2,29 +2,55 @@
 
 return $config = [
    'project' => [
-       'name'   => 'GLPI',
-       'url'    => 'http://glpi-project.org',
-       'dashboard' => [
-          'leaflet' => [
-             'provider'  => 'OpenStreetMap.BlackAndWhite'
-          ]
-       ]
+       'name'   => 'Galette',
+       'url'    => 'https://galette.eu',
+        'footer_links' => [
+            'Galette'   => [
+                'faclass'   => 'fa fa-globe',
+                'url'       => 'https://galette.eu'
+            ],
+            'Documentation' => [
+                'faclass'   => 'fa fa-book',
+                'url'       => 'https://doc.galette.eu'
+            ],
+            'Forums'        => [
+                'faclass'   => 'fa fa-comments',
+                'url'       => 'https://forums.galette.eu'
+            ],
+            'Contact'       => [
+                'faclass'   => 'fa fa-pencil',
+                'url'       => 'http://galette.eu/site/contact'
+            ]
+        ],
+        'schema' => [
+            'usage' => false        ],
+        'mapping' => [
+            'avg_members'       => 'avg_entities',
+            'avg_contributions' => 'avg_computers',
+            'avg_transactions'  => 'avg_networkequipments'
+        ],
+        'dyn_references' => [
+            'num_members' => [
+                'label'         => 'Number of members',
+                'short_label'   => '#members'
+            ]
+        ]
     ],
-   'baseurl' => 'http://glpi-project.org/telemetry/',
+   'baseurl' => 'https://telemetry.galette.eu',
    'db' => [
       'driver'    => "pgsql",
       'host'      => "localhost",
-      'database'  => "glpi_telemetry",
+      'database'  => "telemetry",
       'username'  => "user",
       'password'  => "password",
       'charset'   => 'utf8',
       'collation' => 'utf8_unicode_ci',
-      'prefix'    => '',
+      'prefix'    => ''
    ],
    'recaptcha' => [
       'sitekey'   => '',
       'secret'    => ''
    ],
    'mail_admin' => '',
-   'mail_from' => 'glpi-telemetry@teclib.com',
+   'mail_from' => 'telemetry+noreply@galette.eu'
 ];

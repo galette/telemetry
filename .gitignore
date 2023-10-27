@@ -14,3 +14,4 @@ _site/
 .buildpath
 .project
 .settings/
+.idea/

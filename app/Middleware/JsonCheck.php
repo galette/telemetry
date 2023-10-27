@@ -1,5 +1,5 @@
 <?php
-namespace GLPI\Telemetry\Middleware;
+namespace GaletteTelemetry\Middleware;
 
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -24,7 +24,7 @@ class JsonCheck extends Middleware
 
         $json = $request->getParsedBody();
 
-       // check if sended json is an array (Slim return null in case of invalid json)
+       // check if sent json is an array (Slim return null in case of invalid json)
         if (!is_array($json)) {
             return $response
             ->withStatus(400)

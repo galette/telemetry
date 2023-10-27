@@ -11,7 +11,7 @@
  * @package  Telemetry
  * @author   Johan Cwiklinski <johan@x-tnd.be>
  * @license  MIT https://opensource.org/licenses/MIT
- * @link     https://githu.com/glpi-project/telemetry
+ * @link     https://github.com/galette/telemetry
  */
 
 if (!file_exists(__DIR__ . '/config.inc.php')) {

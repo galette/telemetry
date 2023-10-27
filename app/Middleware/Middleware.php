@@ -1,4 +1,4 @@
-<?php namespace GLPI\Telemetry\Middleware;
+<?php namespace GaletteTelemetry\Middleware;
 
 class Middleware
 {

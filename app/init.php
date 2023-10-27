@@ -1,11 +1,9 @@
 <?php
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
 use Illuminate\Pagination\Paginator;
 use Geggleto\Service\Captcha;
 use ReCaptcha\ReCaptcha;
-use Zend\Cache\StorageFactory;
+use Twig\Extension\DebugExtension;
 
 // Start PHP session
 session_start();
@@ -29,8 +27,6 @@ if (TELEMETRY_MODE == 'DEV') {
 $valid_conf = true;
 if (!isset($config['project']) || empty($config['project'])) {
     throw new \DomainException('project is mandatory in configuration');
-} elseif (!isset($config['project']['name']) || empty($config['project']['name'])) {
-    throw new \DomainException('project name is mandatory in configuration');
 }
 
 // autoload composer libs
@@ -39,21 +35,15 @@ require __DIR__ . '/../vendor/autoload.php';
 // init slim
 $app       = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
-$app->add(new RKA\Middleware\SchemeAndHost());
 
 $container['project'] = function ($c) use ($config) {
-    $project = new \GLPI\Telemetry\Project($config['project']['name'], $c->logger);
+    $project = new \GaletteTelemetry\Project($c->logger);
     $project->setConfig($config['project']);
     return $project;
 };
 
-// set our json spec in container
-$container['json_spec'] = function ($c) {
-    return $c->project->getExampleData();
-};
-
 // setup db connection
-$capsule = new Illuminate\Database\Capsule\Manager;
+$capsule = new \Illuminate\Database\Capsule\Manager;
 $capsule->addConnection($container->get('settings')['db']);
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
@@ -84,11 +74,7 @@ $container['countries']     = json_decode(file_get_contents($container['countrie
 
 // setup twig
 $container['view'] = function ($c) {
-    $paths = array_merge(
-        [__DIR__ . '/../app/Templates'],
-        $c->project->getTemplatesPath()
-    );
-    $view = new \Slim\Views\Twig($paths, [
+    $view = new \Slim\Views\Twig([__DIR__ . '/../app/Templates'], [
       'cache' => $c['settings']['debug'] ? false : $c->cache_dir . '/twig',
       'debug' => $c['settings']['debug']
     ]);
@@ -100,11 +86,9 @@ $container['view'] = function ($c) {
         $c['request']->getUri()->getBaseUrl()
     );
     $view->addExtension(new Slim\Views\TwigExtension($c['router'], $uri));
-    $view->addExtension(new Knlv\Slim\Views\TwigMessages(
-        new Slim\Flash\Messages()
-    ));
+
     if ($c['settings']['debug']) {
-        $view->addExtension(new Twig_Extension_Debug());
+        $view->addExtension(new DebugExtension());
     }
 
     // add some global to view
@@ -115,12 +99,6 @@ $container['view'] = function ($c) {
 
     // add countries geo data
     $env->addGlobal('countries', $c['countries'], true);
-
-    //Project name
-    $env->addGlobal('project_name', $c->project->getName());
-
-    //enable contact page
-    $env->addGlobal('enable_contact', $c->project->hasContactPage());
 
     //footer links
     $env->addGlobal('footer_links', $c->project->getFooterLinks());
@@ -133,7 +111,10 @@ $container['view'] = function ($c) {
 
 //setup recaptcha
 if (TELEMETRY_MODE == 'DEV') {
-    $recaptcha = null;
+    $recaptcha = function ($request, $response, $next) {
+        //does nothing
+        return $next($request, $response);
+    };
 } else {
     $container[Captcha::class] = function ($c) {
         return new Captcha($c[ReCaptcha::class]);
@@ -211,16 +192,12 @@ $container['log_dir'] = function ($c) {
 };
 
 $container['cache'] = function ($c) {
-    $cache_dir = $c->cache_dir . '/zend';
-    if (!file_exists($cache_dir)) {
-        mkdir($cache_dir);
-    }
-    $cache  = StorageFactory::adapterFactory(
-        'filesystem',
-        [
-            'cache_dir' => $cache_dir
-        ]
+    $cache = new \Symfony\Component\Cache\Adapter\FilesystemAdapter(
+        'telemetry',
+        0,
+        $c->cache_dir
     );
+
     return $cache;
 };
 
@@ -228,7 +205,7 @@ $container['cache'] = function ($c) {
 if (!$config['debug']) {
     $container['phpErrorHandler'] = function ($c) {
         return function ($request, $response, $error) use ($c) {
-            $c->logger->error('error', [$e->getMessage()]);
+            $c->logger->error('error', [$error->getMessage()]);
             return $c['view']->render(
                 $response,
                 "errors/server.html"
