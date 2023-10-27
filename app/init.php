@@ -35,7 +35,6 @@ require __DIR__ . '/../vendor/autoload.php';
 // init slim
 $app       = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
-//$app->add(new RKA\Middleware\SchemeAndHost());
 
 $container['project'] = function ($c) use ($config) {
     $project = new \GaletteTelemetry\Project($c->logger);
