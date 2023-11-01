@@ -8,6 +8,10 @@
       <link rel="stylesheet" type="text/css" href="{{ base_url() }}/ui/semantic.min.css" />
       <link rel="stylesheet" href="{{ base_url() }}/css/base.css" />
 
+      {% if darkcss_created and darkcss_enabled %}
+         <link rel="stylesheet" type="text/css" href="{{ path_for('getDarkCSS') }}">
+      {% endif %}
+
       <link rel="icon" type="image/png" href="{{ base_url() }}/pics/favicon.png" />
 
       {% block head %}
@@ -24,6 +28,14 @@
             <a href="{{ path_for('reference') }}" class="item">
                <i class="users icon"></i>
                References
+            </a>
+            <a
+               href="#"
+               class="item{% if darkcss_created and darkcss_enabled %} black{% endif %} tooltip darkmode"
+               title="{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}"
+            >
+               <i class="icon adjust"></i>
+               <span class="displaynone">{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}</span>
             </a>
          </div>
       </div>
@@ -75,6 +87,14 @@
       <script src="{{ base_url() }}/assets/js/jquery.min.js"></script>
       <script src="{{ base_url() }}/ui/semantic.min.js"></script>
       <script src="{{ base_url() }}/assets/js/main.bundle.min.js"></script>
+      {% if not darkcss_created %}
+         <script type="text/javascript" src="{{ base_url() }}/assets/js/darkreader.min.js"></script>
+      {% endif %}
+
+      <script>
+         var darkcss_path = '{{ path_for('writeDarkCSS') }}';
+         var writedarkcss = {% if darkcss_created %}false{% else %}true{% endif %};
+      </script>
       {% block userscripts %}{% endblock %}
     </body>
 </html>

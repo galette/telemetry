@@ -340,4 +340,29 @@ class Telemetry extends ControllerAbstract
                 'y'      => array_column($top_plugins, 'total')
             ]]);
     }
+
+    public function writeDarkCSS(Request $request, Response $response): Response
+    {
+        $cache = $this->container->get('cache');
+
+        $darkcss = $cache->getItem('darkcss');
+        $darkcss->set($request->getParsedBody());
+        $cache->save($darkcss);
+
+        return $response->withStatus(200);
+    }
+
+    public function getDarkCSS(Request $request, Response $response): Response
+    {
+        $cache = $this->container->get('cache');
+
+        if ($cache->hasItem('darkcss')) {
+            $darkcss = $cache->getItem('darkcss')->get();
+            $response = $response->withHeader('Content-type', 'text/css');
+            $body = $response->getBody();
+            $body->write(array_pop($darkcss));
+        }
+
+        return $response;
+    }
 }

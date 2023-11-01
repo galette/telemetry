@@ -49,7 +49,8 @@ var paths = {
       './ui/semantic/galette/**/*.*'
     ],
     css: './css/**/*.css',
-    js: './js/*.js'
+    js: './js/*.js',
+    emojis: './node_modules/twemoji-emojis/vendor/svg/*'
   },
   semantic: {
     src: './semantic/src/',
@@ -57,6 +58,7 @@ var paths = {
   },
   scripts: {
     main: [
+      './node_modules/js-cookie/dist/js.cookie.js',
       './js/base.js'
     ],
     telemetry: [
@@ -69,6 +71,9 @@ var paths = {
       './node_modules/leaflet-providers/leaflet-providers.js',
       './node_modules/spin.js/spin.js',
       './node_modules/leaflet-spin/leaflet.spin.js'
+    ],
+    darkreader: [
+      './node_modules/darkreader/darkreader.js'
     ]
   },
   styles: {
@@ -104,7 +109,11 @@ function theme() {
     .pipe(gulp.dest(paths.semantic.theme))
     .pipe(browserSync.stream());
 
-  return merge(config, theme);
+  emojis = gulp.src(paths.src.emojis)
+    .pipe(gulp.dest(paths.semantic.theme + 'assets/emojis'))
+    .pipe(browserSync.stream());
+
+  return merge(config, theme, emojis);
 }
 
 function clean() {
@@ -156,7 +165,17 @@ function scripts() {
     .pipe(gulp.dest(paths.assets.js))
     .pipe(browserSync.stream());
 
-  return merge(main, telemetry, leaflet);
+  darkreader = gulp.src(paths.scripts.darkreader)
+    .pipe(concat('darkreader.min.js'))
+    .pipe(uglify({
+      output: {
+        comments: /^!/
+      }
+    }))
+    .pipe(gulp.dest(paths.assets.js))
+    .pipe(browserSync.stream());
+
+  return merge(main, telemetry, leaflet, darkreader);
 }
 
 function movefiles() {

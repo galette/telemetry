@@ -46,9 +46,14 @@ $app->get(
 )->setName('allPlugins');
 
 $app->post(
-    '/references/filter',
-    'GaletteTelemetry\Controllers\References\doFilter'
-)->setName('filter_references');
+    '/write-dark-css',
+    'GaletteTelemetry\Controllers\Telemetry:writeDarkCSS'
+)->setName('writeDarkCSS');
+
+$app->get(
+    '/get-dark-css',
+    'GaletteTelemetry\Controllers\Telemetry:getDarkCSS'
+)->setName('getDarkCSS');
 
 // run slim
 $app->run();

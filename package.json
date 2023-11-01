@@ -17,15 +17,18 @@
   "license": "MIT",
   "dependencies": {
     "bootstrap": "^5.3.2",
+    "darkreader": "^4.9.67",
     "fomantic-ui": "^2.9.3",
     "jquery": "^3.7.1",
+    "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",
     "leaflet-providers": "^2.0.0",
     "leaflet-spin": "^1.1.2",
     "leaflet.fullscreen": "^3.0.0",
     "masonry-layout": "^4.2.2",
     "merge-stream": "^2.0.0",
-    "plotly.js-dist": "^2.27.0"
+    "plotly.js-dist": "^2.27.0",
+    "twemoji-emojis": "^14.1.0"
   },
   "devDependencies": {
     "browser-sync": "^2.29.3",
