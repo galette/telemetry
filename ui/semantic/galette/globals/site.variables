@@ -1,0 +1,43 @@
+/*******************************
+     Galette Global Variables
+*******************************/
+
+@fontName                   : 'PT Sans';
+
+@galetteBackgroundImage     : 'themes/galette/assets/images/bg.png';
+@galetteBackgroundImageRtl  : 'themes/galette/assets/images/bg-rtl.png';
+@galetteNavBackground       : rgba(99, 107, 112, .3);
+@galetteColor               : #ffb619;
+@lightGaletteColor          : #ffda8b;
+
+@red                        : #e56868;
+@grey                       : #636b70;
+
+@primaryColor               : @galetteColor;
+@secondaryColor             : @grey;
+
+@lightPrimaryColor          : @lightGaletteColor;
+@lightSecondaryColor        : @lightGrey;
+
+@textColor                  : @grey;
+
+@oddLineBackgroundColor     : #e2e5ee;
+@evenLineBackgroundColor    : #eeeeee;
+@activeLineBackgroundColor  : #cce2ff;
+
+@borderColor                : lighten(@textColor, 30);
+@solidBorderColor           : lighten(@textColor, 30);
+@internalBorderColor        : lighten(@textColor, 40);
+
+@inputColor                 : @textColor;
+@inputPlaceholderColor      : lighten(@inputColor, 25);
+@inputPlaceholderFocusColor : lighten(@inputColor, 10);
+
+@toggleLaneBackground       : rgba(0,0,0,.15);
+
+@cotisOkBackgroundColor     : #ddffdd;
+@cotisNeverBackgroundColor  : @evenLineBackgroundColor;
+@cotisExemptBackgroundColor : @cotisOkBackgroundColor;
+@cotisSoonBackgroundColor   : #ffe9ab;
+@cotisLateBackgroundColor   : #ffdddd;
+@cotisLastdayBackgroundColor: #ffd9ab;

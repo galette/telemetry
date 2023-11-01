@@ -165,6 +165,7 @@ class Telemetry extends ControllerAbstract
             ->toArray();
         $dashboard['default_languages'] = json_encode([[
             'type'    => 'pie',
+            'hole'   => .4,
             'palette' => 'combo',
             'labels'  => array_column($languages, 'glpi_default_language'),
             'values'  => array_column($languages, 'total')

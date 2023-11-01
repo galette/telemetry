@@ -1,0 +1,60 @@
+/*******************************
+         Galette Overrides
+*******************************/
+
+/*-------------------------------------
+    Style for "codeeditor" textareas
+    and text inputs
+--------------------------------------*/
+
+.ui.form input[type="text"].codeeditor,
+.ui.input textarea.codeeditor,
+.ui.form textarea.codeeditor {
+  font-family: monospace;
+}
+
+/*--------------------
+    Gaptcha Input
+---------------------*/
+.ui.form input[type="gaptcha"] {
+  width: 100px;
+  vertical-align: top;
+}
+
+.ui.form input[type="gaptcha"] {
+  font-family: @inputFont;
+  margin: 0;
+  outline: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+
+  line-height: @inputLineHeight;
+  padding: @inputPadding;
+  font-size: @inputFontSize;
+
+  background: @inputBackground;
+  border: @inputBorder;
+  color: @inputColor;
+  border-radius: @inputBorderRadius;
+  box-shadow: @inputBoxShadow;
+  transition: @inputTransition;
+}
+
+/*--------------------
+      Fields
+---------------------*/
+.ui .fields:first-child:last-child {
+  margin-bottom: 0;
+}
+
+/*-------------------------
+      Filters' fields
+--------------------------*/
+.filters .fields .fields {
+  margin: 0;
+}
+
+.filters .fields .field.flexend {
+  display: flex;
+  align-items: flex-end;
+}

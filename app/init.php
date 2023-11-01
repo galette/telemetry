@@ -72,6 +72,15 @@ $container['countries_dir'] = "../vendor/mledoze/countries";
 $container['countries']     = json_decode(file_get_contents($container['countries_dir'].
                                                             "/dist/countries.json"), true);
 
+//countries names
+$container['countries_names'] = function ($c) {
+    $names = [];
+    foreach ($c['countries'] as $country) {
+        $names[strtolower($country['cca2'])] = $country['name']['common'];
+    }
+    return $names;
+};
+
 // setup twig
 $container['view'] = function ($c) {
     $view = new \Slim\Views\Twig([__DIR__ . '/../app/Templates'], [
@@ -97,8 +106,11 @@ $container['view'] = function ($c) {
     // add recaptcha sitekey
     $env->addGlobal('recaptchasitekey', $c['settings']['recaptcha']['sitekey']);
 
+    $env->addGlobal('flash', $c->get('flash'));
+
     // add countries geo data
-    $env->addGlobal('countries', $c['countries'], true);
+    $env->addGlobal('countries', $c['countries']);
+    $env->addGlobal('countries_names', $c['countries_names']);
 
     //footer links
     $env->addGlobal('footer_links', $c->project->getFooterLinks());

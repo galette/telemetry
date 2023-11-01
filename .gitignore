@@ -1,13 +1,10 @@
-/.vscode/
 /vendor/
-/public/node_modules/
 /data/cache/*
 !/data/cache/.gitkeep
 /data/logs/*.log
 /config.inc.php
 /local.config.inc.php
 /phinx_local.php
-/tests/code-coverage/
 /projects/
 _site/
 .sass-cache/
@@ -15,3 +12,11 @@ _site/
 .project
 .settings/
 .idea/
+node_modules/
+public/assets/
+!public/assets/.gitkeep
+
+# Semantic UI
+semantic
+!ui/semantic
+public/ui/

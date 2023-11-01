@@ -12,24 +12,12 @@ class Reference extends ControllerAbstract
     public function view(Request $req, Response $res, array $args)
     {
         $get = $req->getQueryParams();
-
         // default session param for this controller
         if (!isset($_SESSION['reference'])) {
             $_SESSION['reference'] = [
                 "orderby" => 'created_at',
                 "sort"    => "desc"
             ];
-        }
-
-        // manage sorting
-        if (isset($get['orderby'])) {
-            if ($_SESSION['reference']['orderby'] == $get['orderby']) {
-               // toggle sort if orderby requested on the same column
-                $_SESSION['reference']['sort'] = ($_SESSION['reference']['sort'] == "desc"
-                                                ? "asc"
-                                                : "desc");
-            }
-            $_SESSION['reference']['orderby'] = $get['orderby'];
         }
 
         $_SESSION['reference']['pagination'] = 15;
@@ -121,7 +109,7 @@ class Reference extends ControllerAbstract
             'total'         => ReferenceModel::query()->where('is_displayed', '=', true)->count(),
             'class'         => 'reference',
             'showmodal'     => isset($get['showmodal']),
-            'uuid'          => isset($get['uuid']) ? $get['uuid'] : '',
+            'uuid'          => $get['uuid'] ?? '',
             'references'    => $references,
             'orderby'       => $_SESSION['reference']['orderby'],
             'sort'          => $_SESSION['reference']['sort'],
@@ -207,8 +195,6 @@ class Reference extends ControllerAbstract
 
     public function filter(Request $req, Response $res, array $args)
     {
-        $get = $req->getQueryParams();
-
         // manage sorting
         if ($args['action'] == 'order') {
             if (!isset($args['value'])) {

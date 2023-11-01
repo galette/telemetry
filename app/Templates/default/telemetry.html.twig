@@ -2,39 +2,38 @@
 {% block title %}Telemetry{% endblock %}
 {% block head %}
    {{ parent() }}
-   <link rel="stylesheet" href="{{base_url()}}/libs/leaflet/leaflet.css" />
-   <link rel="stylesheet" href="{{base_url()}}/libs/prism/prism.css" />
-
-   <link rel="stylesheet" href="{{base_url()}}/css/chart-palette.css" />
-   <link rel="stylesheet" href="{{base_url()}}/css/telemetry.css" />
-
+   <link rel="stylesheet" href="{{ base_url() }}/assets/css/leaflet.bundle.min.css" />
+   <link rel="stylesheet" href="{{ base_url() }}/css/chart-palette.css" />
+   <link rel="stylesheet" href="{{ base_url() }}/css/telemetry.css" />
 {% endblock %}
 
 {% block header %}
 
-{% set myheader= {
-   'title': '<i class="fa fa-bar-chart"></i> Telemetry',
-   'text':  'Since Galette 0.9, we collect <strong>anonymous data</strong> from instances of voluntary users.'
+{% set myheader = {
+   'title': 'Telemetry',
+   'icon': 'database',
+   'text': '<strong>Anonymous data</strong> collected from voluntary users instances.'
 } %}
 {{ parent() }}
 {% endblock %}
 
 {% block content %}
 
-<div>
-   <form class='telemetry_form'>
-      <fieldset class="form-group">
-         <legend><label for="years">Data since</label></legend>
-         <select class="form-control" name="years" id="years" onchange='this.form.submit();'>
-            <option value='-1'>always</option>
-            {% for i in 1..20 %}
-            <option value='{{i}}'
-                    {% if form.years == i %} selected="selected"{% endif %}>
-               {{i}} year(s)
-            </option>
-            {% endfor %}
-         </select>
-      </fieldset>
+   <form>
+      <div class="ui form basic segment right aligned">
+         <div class="inline field">
+               <label for="years">Data since</label>
+               <select name="years" id="years" >
+                  <option value='-1'>always</option>
+                  {% for i in 1..20 %}
+                     <option value="{{ i }}"{% if form.years == i %} selected="selected"{% endif %}>
+                        {{ i }} {% if i < 2  %}year{% else %}years{% endif %}
+                     </option>
+                  {% endfor %}
+               </select>
+               <input type="submit" value="Filter" class="ui button primary" />
+         </div>
+      </div>
    </form>
 
    <div class="dashboard">
@@ -42,11 +41,9 @@
     {% if nb_telemetry_entries %}
       <div class="chart">
       {% set vars = {'chart': {
-                        'id':    'nb_telemetry_entries',
+                        'id': 'nb_telemetry_entries',
                         'title': '# Telemetry: data sent',
-                        'text':  '',
-                        'data':  nb_telemetry_entries,
-                        'expandable': false
+                        'data': nb_telemetry_entries
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
@@ -55,47 +52,29 @@
     {% if nb_reference_entries %}
       <div class="chart">
       {% set vars = {'chart': {
-                        'id':    'nb_reference_entries',
+                        'id': 'nb_reference_entries',
                         'title': '# References added',
-                        'text':  '',
-                        'data':  nb_reference_entries,
-                        'expandable': false
+                        'data': nb_reference_entries,
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
     {% endif %}
 
-    {% if references_countries %}
       <div class="chart chart-2 chart-2h">
       {% set vars = {'chart': {
-                        'id':    'references_countries',
+                        'id': 'references_countries',
                         'title': 'Countries of references',
-                        'text':  '',
-                        'data':  references_countries
+                        'data': references_countries
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
-    {% endif %}
-
-    {% if php_versions %}
-      <div class="chart chart-2">
-      {% set vars = {'chart': {
-                        'id':    'php_versions',
-                        'title': 'PHP versions',
-                        'text':  'Grouped on major versions',
-                        'data':  php_versions
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
 
     {% if glpi_versions %}
-      <div class="chart">
+      <div class="chart chart-2 chart-2h">
       {% set vars = {'chart': {
-                        'id':    'glpi_versions',
+                        'id': 'glpi_versions',
                         'title': 'Galette versions',
-                        'text':  '<i class="fa fa-exclamation-circle"></i> we don&apos;t have any data for versions prior to 0.9',
-                        'data':  glpi_versions
+                        'data': glpi_versions
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
@@ -107,22 +86,43 @@
         </script>
       <div class="chart" data-expand-callback="pluginsExpanded">
       {% set vars = {'chart': {
-                        'id':    'top_plugins',
+                        'id': 'top_plugins',
                         'title': 'Top plugins',
-                        'text':  'Only the top 5 is displayed',
-                        'data':  top_plugins
+                        'data': top_plugins,
+                        'expandable': true
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
     {% endif %}
 
-    {% if os_family %}
+      {% if php_versions %}
+         <div class="chart chart-2">
+            {% set vars = {'chart': {
+               'id': 'php_versions',
+               'title': 'PHP versions',
+               'data': php_versions
+            }} %}
+            {% include 'partials/chart.html.twig' with vars %}
+         </div>
+      {% endif %}
+
+      {% if default_languages %}
+         <div class="chart">
+            {% set vars = {'chart': {
+               'id': 'default_languages',
+               'title': 'Default languages',
+               'data': default_languages
+            }} %}
+            {% include 'partials/chart.html.twig' with vars %}
+         </div>
+      {% endif %}
+
+      {% if os_family %}
       <div class="chart">
       {% set vars = {'chart': {
-                        'id':    'os_family',
+                        'id': 'os_family',
                         'title': 'Operating systems',
-                        'text':  'By family',
-                        'data':  os_family
+                        'data': os_family
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
@@ -131,10 +131,9 @@
     {% if web_engines %}
       <div class="chart">
       {% set vars = {'chart': {
-                        'id':    'web_engines',
+                        'id': 'web_engines',
                         'title': 'Web engines',
-                        'text':  '',
-                        'data':  web_engines
+                        'data': web_engines
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
@@ -143,47 +142,26 @@
     {% if db_engines %}
       <div class="chart">
       {% set vars = {'chart': {
-                        'id':    'db_engines',
+                        'id': 'db_engines',
                         'title': 'DB engines',
-                        'text':  '',
-                        'data':  db_engines
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
-    {% if default_languages %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id':    'default_languages',
-                        'title': 'Default languages',
-                        'text':  '',
-                        'data':  default_languages
+                        'data': db_engines
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>
     {% endif %}
    </div>
-</div>
 {% endblock %}
 
 {% block userscripts %}
 {{ parent() }}
 
-<script src="{{base_url()}}/libs/plotly/plotly.min.js"></script>
-<script src="{{base_url()}}/libs/masonry.pkgd/masonry.pkgd.min.js"></script>
-<script src="{{base_url()}}/libs/prism/prism.js"></script>
-{% if references_countries %}
+<script src="{{ base_url() }}/assets/js/plotly.js"></script>
+<script src="{{ base_url() }}/assets/js/masonry.pkgd.min.js"></script>
 {# Get map provider from configuration #}
 <script type="text/javascript">
     var geojson_path = '{{ path_for('geojson') }}';
 </script>
-<script src="{{base_url()}}/libs/leaflet/leaflet.js"></script>
-<script src="{{base_url()}}/libs/spin.js/spin.min.js"></script>
-<script src="{{base_url()}}/libs/leaflet.spin/leaflet.spin.min.js"></script>
-<script src="{{base_url()}}/libs/leaflet-providers/leaflet-providers.js"></script>
-<script src="{{base_url()}}/js/references_countries.js"></script>
-{% endif %}
-<script src="{{base_url()}}/js/telemetry.js"></script>
+<script src="{{ base_url() }}/assets/js/leaflet.bundle.min.js"></script>
+<script src="{{ base_url() }}/assets/js/telemetry.bundle.min.js"></script>
 
 {% endblock %}
