@@ -5,21 +5,47 @@ return $config = [
        'name'   => 'Galette',
        'url'    => 'https://galette.eu',
         'footer_links' => [
-            'Galette'   => [
-                'faclass'   => 'fa fa-globe',
-                'url'       => 'https://galette.eu'
+            'Galette' => [
+                'icon' => 'globe',
+                'url' => 'https://galette.eu'
             ],
             'Documentation' => [
-                'faclass'   => 'fa fa-book',
-                'url'       => 'https://doc.galette.eu'
+                'icon' => 'book',
+                'url' => 'https://doc.galette.eu'
             ],
-            'Forums'        => [
-                'faclass'   => 'fa fa-comments',
-                'url'       => 'https://forums.galette.eu'
+            'Forums' => [
+                'icon' => 'comments',
+                'url' => 'https://forums.galette.eu'
             ],
-            'Contact'       => [
-                'faclass'   => 'fa fa-pencil',
-                'url'       => 'http://galette.eu/site/contact'
+            'Contact' => [
+                'icon' => 'pencil',
+                'url' => 'http://galette.eu/site/contact'
+            ]
+        ],
+        'social_links' => [
+            'Galette source code' => [
+                'icon' => 'github',
+                'url' => 'https://github.com/galette'
+            ],
+            'Mastodon @galette@framapiaf.org' => [
+                'icon' => 'mastodon',
+                'url' => 'https://framapiaf.org/@galette'
+            ],
+            'Twitter @galette_soft' => [
+                'icon' => 'twitter',
+                'url' => 'https://twitter.com/galette_soft'
+            ],
+            'Galette on Facebook' => [
+                'icon' => 'facebook',
+                'url' => 'https://www.facebook.com/galettesoft'
+            ],
+            'Galette Reddit' => [
+                'icon' => 'reddit',
+                'url' => 'https://www.reddit.com/r/galette'
+            ],
+            'Galette Discord' => [
+                'icon' => 'discord',
+                'url' => 'https://discord.gg/98g2e3xka8'
             ]
         ],
         'schema' => [

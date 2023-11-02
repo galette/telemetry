@@ -114,9 +114,15 @@ $container['view'] = function ($c) {
 
     //footer links
     $env->addGlobal('footer_links', $c->project->getFooterLinks());
+    //social links
+    $env->addGlobal('social_links', $c->project->getSocialLinks());
 
     //app mode
     $env->addGlobal('mode', TELEMETRY_MODE);
+
+    //dark css state
+    $env->addGlobal('darkcss_created', $c->get('darkcss_created'));
+    $env->addGlobal('darkcss_enabled', ($_COOKIE['galettetelemetry_dark_mode'] ?? 0) == 1);
 
     return $view;
 };
@@ -211,6 +217,15 @@ $container['cache'] = function ($c) {
     );
 
     return $cache;
+};
+
+$container['darkcss_created'] = function ($c) {
+    $cache = $c->cache;
+    if ($cache->hasItem('darkcss')) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 // php error handler
