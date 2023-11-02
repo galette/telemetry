@@ -12,6 +12,7 @@ class Project
     private $logger;
     private $project_path;
     private array $footer_links = [];
+    private array $social_links = [];
     private $dyn_references = [
         'can_prospect'  => [
             'label'     => 'I agree to receive emails from GLPI and Teclib (including Newsletters, as well as promotional offers and announcements)',
@@ -65,6 +66,10 @@ class Project
 
         if (isset($config['footer_links'])) {
             $this->footer_links = $config['footer_links'];
+        }
+
+        if (isset($config['social_links'])) {
+            $this->social_links = $config['social_links'];
         }
 
         if (isset($config['dyn_references'])) {
@@ -343,6 +348,16 @@ class Project
     public function getFooterLinks()
     {
         return $this->footer_links;
+    }
+
+    /**
+     * Get social links
+     *
+     * @return array
+     */
+    public function getSocialLinks()
+    {
+        return $this->social_links;
     }
 
     /**

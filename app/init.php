@@ -114,6 +114,8 @@ $container['view'] = function ($c) {
 
     //footer links
     $env->addGlobal('footer_links', $c->project->getFooterLinks());
+    //social links
+    $env->addGlobal('social_links', $c->project->getSocialLinks());
 
     //app mode
     $env->addGlobal('mode', TELEMETRY_MODE);

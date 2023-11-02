@@ -67,15 +67,20 @@
                   <div class="right aligned column">
                      <div class="ui inverted link horizontal list">
                         {% for text, link in footer_links %}
-                           <a href="{{ link.url }}" class="item">
-                              {%- if link.faclass is defined -%}
-                                 <i class="{{ link.faclass }}"></i>&nbsp;
-                              {%- endif -%}
+                           <a href="{{ link.url }}" class="item" target="_blank">
+                              <i class="icon {{ link.icon }}"></i>
                               {{- text -}}
                            </a>
                         {% endfor %}
+                     </div><br/>
+                     <div class="ui inverted link horizontal list">
+                        {% for text, link in social_links %}
+                           <a href="{{ link.url }}" class="item tooltip" title="{{ text }}" target="_blank">
+                              <i class="ui icon {{ link.icon }}"></i>
+                              <span class="displaynone">{{- text -}}</span>
+                           </a>
+                        {% endfor %}
                      </div>
-                     <p>© 2017-2023 GLPI - © 2023 <a href="https://galette.eu">Galette</a></p>
                   </div>
                </div>
             </div>
