@@ -2,9 +2,9 @@
 {% block title %}Telemetry{% endblock %}
 {% block head %}
    {{ parent() }}
-   <link rel="stylesheet" href="{{ base_url() }}/assets/css/leaflet.bundle.min.css" />
-   <link rel="stylesheet" href="{{ base_url() }}/css/chart-palette.css" />
-   <link rel="stylesheet" href="{{ base_url() }}/css/telemetry.css" />
+   <link rel="stylesheet" href="{{ base_path() }}/assets/css/leaflet.bundle.min.css" />
+   <link rel="stylesheet" href="{{ base_path() }}/css/chart-palette.css" />
+   <link rel="stylesheet" href="{{ base_path() }}/css/telemetry.css" />
 {% endblock %}
 
 {% block header %}
@@ -82,7 +82,7 @@
 
     {% if top_plugins %}
         <script type="text/javascript">
-            var _allPluginsURL = '{{ path_for('allPlugins') }}';
+            var _allPluginsURL = '{{ url_for('allPlugins') }}';
         </script>
       <div class="chart" data-expand-callback="pluginsExpanded">
       {% set vars = {'chart': {
@@ -155,13 +155,13 @@
 {% block userscripts %}
 {{ parent() }}
 
-<script src="{{ base_url() }}/assets/js/plotly.js"></script>
-<script src="{{ base_url() }}/assets/js/masonry.pkgd.min.js"></script>
+<script src="{{ base_path() }}/assets/js/plotly.js"></script>
+<script src="{{ base_path() }}/assets/js/masonry.pkgd.min.js"></script>
 {# Get map provider from configuration #}
 <script type="text/javascript">
-    var geojson_path = '{{ path_for('geojson') }}';
+    var geojson_path = '{{ url_for('geojson') }}';
 </script>
-<script src="{{ base_url() }}/assets/js/leaflet.bundle.min.js"></script>
-<script src="{{ base_url() }}/assets/js/telemetry.bundle.min.js"></script>
+<script src="{{ base_path() }}/assets/js/leaflet.bundle.min.js"></script>
+<script src="{{ base_path() }}/assets/js/telemetry.bundle.min.js"></script>
 
 {% endblock %}

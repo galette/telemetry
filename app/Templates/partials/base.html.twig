@@ -5,14 +5,14 @@
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       <meta http-equiv="Cache-control" content="no-cache" />
 
-      <link rel="stylesheet" type="text/css" href="{{ base_url() }}/ui/semantic.min.css" />
-      <link rel="stylesheet" href="{{ base_url() }}/css/base.css" />
+      <link rel="stylesheet" type="text/css" href="{{ base_path() }}/ui/semantic.min.css" />
+      <link rel="stylesheet" href="{{ base_path() }}/css/base.css" />
 
       {% if darkcss_created and darkcss_enabled %}
-         <link rel="stylesheet" type="text/css" href="{{ path_for('getDarkCSS') }}">
+         <link rel="stylesheet" type="text/css" href="{{ url_for('getDarkCSS') }}">
       {% endif %}
 
-      <link rel="icon" type="image/png" href="{{ base_url() }}/pics/favicon.png" />
+      <link rel="icon" type="image/png" href="{{ base_path() }}/pics/favicon.png" />
 
       {% block head %}
         <title>Galette Telemetry - {% block title %}{% endblock %}</title>
@@ -21,11 +21,11 @@
    <body class="{{ class }}">
       <div class="ui centered top secondary menu">
          <div class="ui text container">
-            <a href="{{ path_for("telemetry") }}" class="item">
+            <a href="{{ url_for("telemetry") }}" class="item">
                <i class="database icon"></i>
                Telemetry
             </a>
-            <a href="{{ path_for('reference') }}" class="item">
+            <a href="{{ url_for('reference') }}" class="item">
                <i class="users icon"></i>
                References
             </a>
@@ -89,15 +89,15 @@
 
       {% include "partials/alerts.html.twig" %}
 
-      <script src="{{ base_url() }}/assets/js/jquery.min.js"></script>
-      <script src="{{ base_url() }}/ui/semantic.min.js"></script>
-      <script src="{{ base_url() }}/assets/js/main.bundle.min.js"></script>
+      <script src="{{ base_path() }}/assets/js/jquery.min.js"></script>
+      <script src="{{ base_path() }}/ui/semantic.min.js"></script>
+      <script src="{{ base_path() }}/assets/js/main.bundle.min.js"></script>
       {% if not darkcss_created %}
-         <script type="text/javascript" src="{{ base_url() }}/assets/js/darkreader.min.js"></script>
+         <script type="text/javascript" src="{{ base_path() }}/assets/js/darkreader.min.js"></script>
       {% endif %}
 
       <script>
-         var darkcss_path = '{{ path_for('writeDarkCSS') }}';
+         var darkcss_path = '{{ url_for('writeDarkCSS') }}';
          var writedarkcss = {% if darkcss_created %}false{% else %}true{% endif %};
       </script>
       {% block userscripts %}{% endblock %}

@@ -22,7 +22,7 @@
     </h4>
     </div>
 
-    <form id="filter_references" action="{{ path_for('filterReferences', {'action': 'filter'}) }}" method="POST">
+    <form id="filter_references" action="{{ url_for('filterReferences') }}" method="POST">
         <div class="ui form">
             <div class="inline fields">
                 <div class="eight wide field">
@@ -48,7 +48,7 @@
                 </div>
             </div>
         </div>
-        {{ csrf.field|raw }}
+        {% include "partials/csrf.html.twig" %}
     </form>
 
     <table class="ui celled selectable striped table">
@@ -56,19 +56,19 @@
         <tr>
             <th>
                 {% if orderby == 'name' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'name'}) }}">Name</a>
+                <a href="{{ url_for('orderReferences', {'field': 'name'}) }}">Name</a>
             </th>
             <th>
                 {% if orderby == 'country' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'country'}) }}">Country</a>
+                <a href="{{ url_for('orderReferences', {'field': 'country'}) }}">Country</a>
             </th>
             <th>
                 {% if orderby == 'num_members' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'num_members'}) }}">Members</a>
+                <a href="{{ url_for('orderReferences', {'field': 'num_members'}) }}">Members</a>
             </th>
             <th>
                 {% if orderby == 'created_at' %}<i class="fa fa-sort-{{ sort }}"></i>{% endif %}
-                <a href="{{ path_for('filterReferences', {'action': 'order', 'value': 'created_at'}) }}">Registration date</a>
+                <a href="{{ url_for('orderReferences', {'field': 'created_at'}) }}">Registration date</a>
             </th>
             <th>
                 Comment
@@ -134,7 +134,7 @@
         <i class="close icon"></i>
         <div class="header">Register your own instance</div>
         <div class="ui form content">
-            <form method="POST" id="new_reference" action="{{ path_for('registerReference') }}">
+            <form method="POST" id="new_reference" action="{{ url_for('registerReference') }}">
                 <div class="field">
                    <label for="name">Name (company name)</label>
                    <input type="text" required="required"  name="name" id="name" placeholder="Your (company) name" />
@@ -200,7 +200,7 @@
                {% endif %}
 
                 <input type="hidden" name="uuid" value="{{ uuid }}" />
-                {{ csrf.field|raw }}
+                {% include "partials/csrf.html.twig" %}
             </form>
         </div>
         <div class="actions">

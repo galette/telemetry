@@ -1,39 +1,46 @@
 <?php
 
+global $container, $recaptcha;
+
+use Slim\App;
+
 require '../app/init.php';
 
 // route: default
+/** @var App $app */
 $app->get('/', 'GaletteTelemetry\Controllers\Telemetry:view')
     ->setName('telemetry');
 
 /** References */
 //References list
 $app->get('/reference[/page/{page:\d+}]', 'GaletteTelemetry\Controllers\Reference:view')
-   ->add(new GaletteTelemetry\Middleware\CsrfView($container))
-   ->add($container['csrf'])
+   ->add($container->get('csrf'))
    ->setName('reference');
 
 //References filtering
-$app->map(
-    ['get', 'post'],
-    '/reference/{action:filter|order}[/{value}]',
+$app->post(
+    '/reference/filter',
     'GaletteTelemetry\Controllers\Reference:filter'
 )
-   ->add(new GaletteTelemetry\Middleware\CsrfView($container))
-   ->add($container['csrf'])
+   ->add($container->get('csrf'))
    ->setName('filterReferences');
+
+$app->get(
+    '/reference/order/{field}',
+    'GaletteTelemetry\Controllers\Reference:order'
+)
+    ->setName('orderReferences');
 
 //Reference registration
 $app->post('/reference', 'GaletteTelemetry\Controllers\Reference:register')
    ->add($recaptcha)
-   ->add($container['csrf'])
+   ->add($container->get('csrf'))
    ->setName('registerReference');
 /** /References */
 
 // telemetry
 $app->get('/telemetry', 'GaletteTelemetry\Controllers\Telemetry:view');
-$app->post('/telemetry', 'GaletteTelemetry\Controllers\Telemetry:send')
-   ->add(new \GaletteTelemetry\Middleware\JsonCheck($container));
+$app->post('/telemetry', 'GaletteTelemetry\Controllers\Telemetry:send');
 $app->get('/telemetry/geojson', 'GaletteTelemetry\Controllers\Telemetry:geojson')
     ->setName('geojson');
 

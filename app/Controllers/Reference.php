@@ -3,15 +3,15 @@
 use GaletteTelemetry\Models\Reference as ReferenceModel;
 use GaletteTelemetry\Models\DynamicReference;
 use PHPMailer\PHPMailer\PHPMailer;
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Slim\Psr7\Request;
+use Slim\Psr7\Response;
 
 class Reference extends ControllerAbstract
 {
 
-    public function view(Request $req, Response $res, array $args)
+    public function view(Request $request, Response $response)
     {
-        $get = $req->getQueryParams();
+        $get = $request->getQueryParams();
         // default session param for this controller
         if (!isset($_SESSION['reference'])) {
             $_SESSION['reference'] = [
@@ -34,9 +34,9 @@ class Reference extends ControllerAbstract
             ];
 
             //check for references presence
-            $dyn_refs = $this->container->project->getDynamicReferences();
+            $dyn_refs = $this->container->get('project')->getDynamicReferences();
             if (false !== $dyn_refs) {
-                $join_table = $this->container->project->getSlug() . '_reference';
+                $join_table = $this->container->get('project')->getSlug() . '_reference';
                 $order_table = (isset($dyn_refs[$order_field]) ? $join_table : 'reference');
                 $order_field = $order_table . '.' . $order_field;
 
@@ -96,7 +96,7 @@ class Reference extends ControllerAbstract
             throw $e;
         }
 
-        $references->setPath($this->container->router->pathFor('reference'));
+        $references->setPath($this->routeparser->urlFor('reference'));
 
         $ref_countries = [];
         $existing_countries = ReferenceModel::query()->select('country')->groupBy('country')->get();
@@ -105,23 +105,28 @@ class Reference extends ControllerAbstract
         }
 
         // render in twig view
-        $this->render('default/reference.html.twig', [
-            'total'         => ReferenceModel::query()->where('is_displayed', '=', true)->count(),
-            'class'         => 'reference',
-            'showmodal'     => isset($get['showmodal']),
-            'uuid'          => $get['uuid'] ?? '',
-            'references'    => $references,
-            'orderby'       => $_SESSION['reference']['orderby'],
-            'sort'          => $_SESSION['reference']['sort'],
-            'dyn_refs'      => $dyn_refs,
-            'filters'       => $current_filters,
-            'ref_countries' => $ref_countries
-        ]);
+        $this->view->render(
+            $response,
+            'default/reference.html.twig',
+            [
+                'total'         => ReferenceModel::query()->where('is_displayed', '=', true)->count(),
+                'class'         => 'reference',
+                'showmodal'     => isset($get['showmodal']),
+                'uuid'          => $get['uuid'] ?? '',
+                'references'    => $references,
+                'orderby'       => $_SESSION['reference']['orderby'],
+                'sort'          => $_SESSION['reference']['sort'],
+                'dyn_refs'      => $dyn_refs,
+                'filters'       => $current_filters,
+                'ref_countries' => $ref_countries
+            ]
+        );
+        return $response;
     }
 
-    public function register(Request $req, Response $res)
+    public function register(Request $request, Response $response)
     {
-        $post = $req->getParsedBody();
+        $post = $request->getParsedBody();
 
         // clean data
         unset($post['g-recaptcha-response']);
@@ -131,7 +136,7 @@ class Reference extends ControllerAbstract
         $ref_data = $post;
         $dyn_data = [];
 
-        $dyn_ref = $this->container->project->getDynamicReferences();
+        $dyn_ref = $this->container->get('project')->getDynamicReferences();
         if (false !== $dyn_ref) {
             foreach (array_keys($dyn_ref) as $ref) {
                 if (isset($post[$ref])) {
@@ -159,7 +164,7 @@ class Reference extends ControllerAbstract
         if (false !== $dyn_ref) {
             $dref = new DynamicReference();
             $dynamics = $dref->newInstance();
-            $dynamics->setTable($this->container->project->getSlug() . '_reference');
+            $dynamics->setTable($this->container->get('project')->getSlug() . '_reference');
 
             $exists = $dynamics->where('reference_id', $reference['id'])->get();
 
@@ -177,52 +182,63 @@ class Reference extends ControllerAbstract
 
         // send a mail to admin
         $mail = new PHPMailer;
-        $mail->setFrom($this->container['settings']['mail_from']);
-        $mail->addAddress($this->container['settings']['mail_admin']);
+        $mail->setFrom($this->container->get('mail_from'));
+        $mail->addAddress($this->container->get('mail_admin'));
         $mail->Subject = "A new reference has been submitted: ".$post['name'];
         $mail->Body    = var_export($post, true);
         $mail->send();
 
         // store a message for user (displayed after redirect)
-        $this->container->flash->addMessage(
+        $this->container->get('flash')->addMessage(
             'success',
             'Your reference has been stored! An administrator will moderate it before display on the site.'
         );
 
         // redirect to ok page
-        return $res->withRedirect($this->container->router->pathFor('reference'));
+        return $response
+            ->withStatus(301)
+            ->withHeader(
+                'Location',
+                $this->routeparser->urlFor('reference')
+            );
     }
 
-    public function filter(Request $req, Response $res, array $args)
+    public function filter(Request $request, Response $response)
     {
-        // manage sorting
-        if ($args['action'] == 'order') {
-            if (!isset($args['value'])) {
-                throw new \RuntimeException('Missing value for sorting!');
-            }
-            $req_order = $args['value'];
-            if ($_SESSION['reference']['orderby'] == $req_order) {
-               // toggle sort if orderby requested on the same column
-                $_SESSION['reference']['sort'] = ($_SESSION['reference']['sort'] == "desc"
-                                                ? "asc"
-                                                : "desc");
-            }
-            $_SESSION['reference']['orderby'] = $req_order;
+        $post = $request->getParsedBody();
+        if (isset($post['reset_filters'])) {
+            unset($_SESSION['reference']['filters']);
+        } else {
+            $_SESSION['reference']['filters'] = [
+                'name'     => $post['filter_name'],
+                'country'  => $post['filter_country']
+            ];
         }
 
-        // manage filtering
-        if ($args['action'] == 'filter') {
-            $post = $req->getParsedBody();
-            if (isset($post['reset_filters'])) {
-                unset($_SESSION['reference']['filters']);
-            } else {
-                $_SESSION['reference']['filters'] = [
-                    'name'     => $post['filter_name'],
-                    'country'  => $post['filter_country']
-                ];
-            }
-        }
-
-        return $res->withRedirect($this->container->router->pathFor('reference'));
+        return $response
+            ->withStatus(301)
+            ->withHeader(
+                'Location',
+                $this->routeparser->urlFor('reference')
+            );
     }
+
+    public function order(Request $request, Response $response, string $field)
+    {
+        if ($_SESSION['reference']['orderby'] == $field) {
+            // toggle sort if orderby requested on the same column
+            $_SESSION['reference']['sort'] = ($_SESSION['reference']['sort'] == "desc"
+                ? "asc"
+                : "desc");
+        }
+        $_SESSION['reference']['orderby'] = $field;
+
+        return $response
+            ->withStatus(301)
+            ->withHeader(
+                'Location',
+                $this->routeparser->urlFor('reference')
+            );
+    }
+
 }

@@ -1,7 +1,11 @@
 <?php namespace GaletteTelemetry\Controllers;
 
-use Slim\Http\Request;
-use Slim\Http\Response;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Constraints\Factory;
+use JsonSchema\SchemaStorage;
+use JsonSchema\Validator;
+use Slim\Psr7\Request;
+use Slim\Psr7\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 
 use GaletteTelemetry\Models\Telemetry  as TelemetryModel;
@@ -77,6 +81,7 @@ class Telemetry extends ControllerAbstract
         $dashboard['php_versions'] = json_encode([$php_versions_series]);
 
         // retrieve reference country
+        $container_countries = $this->container->get('countries');
         $references_countries = ReferenceModel::query()->select(
             DB::raw("country as cca2, count(*) as total")
         )
@@ -86,13 +91,13 @@ class Telemetry extends ControllerAbstract
             ->orderBy('total', 'desc')
             ->get()
             ->toArray();
-        $all_cca2 = array_column($this->container->countries, 'cca2');
+        $all_cca2 = array_column($container_countries, 'cca2');
         foreach ($references_countries as &$ctry) {
         //replace alpha2 by alpha3 codes
             $cca2 = strtoupper($ctry['cca2']);
             $idx  = array_search($cca2, $all_cca2);
-            $ctry['cca3'] = strtolower($this->container->countries[$idx]['cca3']);
-            $ctry['name'] = $this->container->countries[$idx]['name']['common'];
+            $ctry['cca3'] = strtolower($container_countries[$idx]['cca3']);
+            $ctry['name'] = $container_countries[$idx]['name']['common'];
             unset($ctry['cca2']);
         }
         $dashboard['references_countries'] = json_encode($references_countries);
@@ -212,21 +217,76 @@ class Telemetry extends ControllerAbstract
             'values'  => array_column($web_engines, 'total')
         ]]);
 
-        $this->render('default/telemetry.html.twig', [
-            'form' => [
-                'years' => $years
-            ],
-            'class' => 'telemetry'
-        ] + $dashboard);
+        $this->view->render(
+            $response,
+            'default/telemetry.html.twig',
+            [
+                'form' => [
+                    'years' => $years
+                ],
+                'class' => 'telemetry'
+            ] + $dashboard
+        );
 
         return $response;
     }
 
     public function send(Request $request, Response $response)
     {
-        $project = $this->container->project;
-        $json    = $request->getParsedBody()['data'];
+        $response = $response->withHeader('Content-Type', 'application/json');
 
+        // check request content type
+        if (!str_contains($request->getHeaderLine('Content-Type'), 'application/json')) {
+            $response = $response->withStatus(400);
+            $response->getBody()->write(
+                json_encode([
+                    'message' => 'Content-Type must be application/json'
+                ])
+            );
+            return $response;
+        }
+
+        $post = $request->getBody()->getContents();
+        $json = json_decode($post, true);
+
+        // check if sent json is an array
+        if (!is_array($json)) {
+            $response = $response->withStatus(400);
+            $response->getBody()->write(
+                json_encode([
+                    'message' => 'body seems invalid (not a json ?)'
+                ])
+            );
+            return $response;
+        }
+
+        // check json structure
+        $project = $this->container->get('project');
+        $cache = $this->container->get('is_debug') ? null : $this->container->get('cache');
+        $schema = json_decode($project->getSchema($cache));
+
+        $storage = new SchemaStorage();
+        $storage->addSchema('file://mySchema', $schema);
+        $validator = new Validator(new Factory($storage));
+
+        $validator->validate(
+            $json,
+            $schema,
+            Constraint::CHECK_MODE_TYPE_CAST
+        );
+
+        if (!$validator->isValid()) {
+            $response = $response->withStatus(400);
+            $response->getBody()->write(
+                json_encode([
+                    'message' => 'json not validated against schema',
+                    'errors' => $validator->getErrors()
+                ])
+            );
+            return $response;
+        }
+
+        $json = $json['data'];
         $data = $project->mapModel($json);
         $telemetry_m = TelemetryModel::query()->create($data);
 
@@ -241,22 +301,20 @@ class Telemetry extends ControllerAbstract
             ]);
         }
 
-        return $response
-            ->withJson([
-                'message' => 'OK'
-            ]);
+        return $this->withJson($response, ['message' => 'OK']);
     }
 
     public function geojson(Request $request, Response $response)
     {
         $countries = null;
 
-        $cache = $this->container->cache;
+        $cache = $this->container->get('cache');
         if ($cache->hasItem('countries')) {
             $countries = $cache->getItem('countries')->get();
         }
 
         if ($countries === null) {
+            $container_countries = $this->container->get('countries');
             $references_countries = ReferenceModel::query()->select(
                 DB::raw("country as cca2, count(*) as total")
             )
@@ -265,17 +323,17 @@ class Telemetry extends ControllerAbstract
                 ->orderBy('total', 'desc')
                 ->get()
                 ->toArray();
-            $all_cca2 = array_column($this->container->countries, 'cca2');
+            $all_cca2 = array_column($container_countries, 'cca2');
             $db_countries = [];
             foreach ($references_countries as &$ctry) {
                 //replace alpha2 by alpha3 codes
                 $cca2 = strtoupper($ctry['cca2']);
                 $idx  = array_search($cca2, $all_cca2);
-                $cca3 = strtolower($this->container->countries[$idx]['cca3']);
+                $cca3 = strtolower($container_countries[$idx]['cca3']);
                 $db_countries[] = $cca3;
             }
 
-            $dir = $this->container->countries_dir;
+            $dir = $this->container->get('countries_dir');
             $countries_geo = [];
             foreach (scandir("$dir/data/") as $file) {
                 if (strpos($file, '.geo.json') !== false) {
@@ -292,18 +350,14 @@ class Telemetry extends ControllerAbstract
             $cache->save($cached_countries);
         }
 
-        return $response->withStatus(200)
-         ->withHeader('Content-Type', 'application/json')
-         ->write($countries);
+        return $this->withJson($response, (array)json_decode($countries));
     }
 
     public function schema(Request $request, Response $response)
     {
-        $cache = $this->container->settings->get('debug') == true ? null : $this->container->cache;
-        $schema = $this->container->project->getSchema($cache);
-        return $response->withStatus(200)
-         ->withHeader('Content-Type', 'application/json')
-         ->write($schema);
+        $cache = $this->container->get('is_debug') ? null : $this->container->get('cache');
+        $schema = $this->container->get('project')->getSchema($cache);
+        return $this->withJson($response, $schema);
     }
 
     public function allPlugins(Request $request, Response $response)
@@ -332,13 +386,17 @@ class Telemetry extends ControllerAbstract
             ->get()
             ->toArray();
 
-        return $response
-            ->withJson([[
-                'type'   => 'bar',
-                'marker' => ['color' => "#22727B"],
-                'x'      => array_column($top_plugins, 'pkey'),
-                'y'      => array_column($top_plugins, 'total')
-            ]]);
+        return $this->withJson(
+            $response,
+            [
+                [
+                    'type'   => 'bar',
+                    'marker' => ['color' => "#22727B"],
+                    'x'      => array_column($top_plugins, 'pkey'),
+                    'y'      => array_column($top_plugins, 'total')
+                ]
+            ]
+        );
     }
 
     public function writeDarkCSS(Request $request, Response $response): Response
