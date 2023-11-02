@@ -33,7 +33,8 @@
         "robmorgan/phinx": "^0.14.0",
         "symfony/cache": "^6.3",
         "php-di/slim-bridge": "^3.4",
-        "slim/psr7": "^1.6"
+        "slim/psr7": "^1.6",
+        "middlewares/trailing-slash": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.7",

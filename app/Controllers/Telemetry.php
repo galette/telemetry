@@ -16,7 +16,7 @@ use GaletteTelemetry\Models\TelemetryGlpiPlugin;
 class Telemetry extends ControllerAbstract
 {
 
-    public function view(Request $request, Response $response)
+    public function view(Request $request, Response $response): Response
     {
         $get   = $request->getQueryParams();
         $years = 99;
@@ -231,7 +231,7 @@ class Telemetry extends ControllerAbstract
         return $response;
     }
 
-    public function send(Request $request, Response $response)
+    public function send(Request $request, Response $response): Response
     {
         $response = $response->withHeader('Content-Type', 'application/json');
 
@@ -288,10 +288,12 @@ class Telemetry extends ControllerAbstract
 
         $json = $json['data'];
         $data = $project->mapModel($json);
+        /** @var TelemetryModel $telemetry_m */
         $telemetry_m = TelemetryModel::query()->create($data);
 
         // manage plugins
         foreach ($json[$project->getSlug()]['plugins'] as $plugin) {
+            /** @var GlpiPluginModel $plugin_m */
             $plugin_m = GlpiPluginModel::query()->firstOrCreate(['pkey' => $plugin['key']]);
 
             TelemetryGlpiPlugin::query()->create([
@@ -304,7 +306,7 @@ class Telemetry extends ControllerAbstract
         return $this->withJson($response, ['message' => 'OK']);
     }
 
-    public function geojson(Request $request, Response $response)
+    public function geojson(Request $request, Response $response): Response
     {
         $countries = null;
 
@@ -353,14 +355,14 @@ class Telemetry extends ControllerAbstract
         return $this->withJson($response, (array)json_decode($countries));
     }
 
-    public function schema(Request $request, Response $response)
+    public function schema(Request $request, Response $response): Response
     {
         $cache = $this->container->get('is_debug') ? null : $this->container->get('cache');
         $schema = $this->container->get('project')->getSchema($cache);
         return $this->withJson($response, $schema);
     }
 
-    public function allPlugins(Request $request, Response $response)
+    public function allPlugins(Request $request, Response $response): Response
     {
         $years = 99;
         $get   = $request->getQueryParams();

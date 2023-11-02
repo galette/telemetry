@@ -9,7 +9,7 @@ use Slim\Psr7\Response;
 class Reference extends ControllerAbstract
 {
 
-    public function view(Request $request, Response $response)
+    public function view(Request $request, Response $response): Response
     {
         $get = $request->getQueryParams();
         // default session param for this controller
@@ -124,7 +124,7 @@ class Reference extends ControllerAbstract
         return $response;
     }
 
-    public function register(Request $request, Response $response)
+    public function register(Request $request, Response $response): Response
     {
         $post = $request->getParsedBody();
 
@@ -166,14 +166,17 @@ class Reference extends ControllerAbstract
             $dynamics = $dref->newInstance();
             $dynamics->setTable($this->container->get('project')->getSlug() . '_reference');
 
+            /** @phpstan-ignore-next-line */
             $exists = $dynamics->where('reference_id', $reference['id'])->get();
 
             if (0 === $exists->count()) {
                 $dyn_data['reference_id'] = $reference['id'];
+                /** @phpstan-ignore-next-line */
                 $dynamics->insert(
                     $dyn_data
                 );
             } else {
+                /** @phpstan-ignore-next-line */
                 $dynamics
                     ->where('reference_id', '=', $reference['id'])
                     ->update($dyn_data);
@@ -203,7 +206,7 @@ class Reference extends ControllerAbstract
             );
     }
 
-    public function filter(Request $request, Response $response)
+    public function filter(Request $request, Response $response): Response
     {
         $post = $request->getParsedBody();
         if (isset($post['reset_filters'])) {
@@ -223,7 +226,7 @@ class Reference extends ControllerAbstract
             );
     }
 
-    public function order(Request $request, Response $response, string $field)
+    public function order(Request $request, Response $response, string $field): Response
     {
         if ($_SESSION['reference']['orderby'] == $field) {
             // toggle sort if orderby requested on the same column
@@ -240,5 +243,4 @@ class Reference extends ControllerAbstract
                 $this->routeparser->urlFor('reference')
             );
     }
-
 }

@@ -25,7 +25,7 @@ class CsrfExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Get globals
      *
-     * @return array
+     * @return array<string, ?string>
      */
     public function getGlobals(): array
     {

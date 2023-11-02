@@ -2,31 +2,29 @@
 
 namespace GaletteTelemetry;
 
+use Symfony\Component\Cache\Adapter\AbstractAdapter;
+
 class Project
 {
-    private $slug = 'galette';
-    private $url;
-    private $schema_usage;
-    private $schema_plugins = true;
-    private $mapping = [];
+    private string $slug = 'galette';
+    private string $url;
+    /** @var null|false|array<string, mixed> */
+    private null|array|false $schema_usage;
+    private bool $schema_plugins = true;
+    /** @var array<string, string> */
+    private array $mapping = [];
+    /** @var mixed */
     private $logger;
-    private $project_path;
+    private string $project_path;
+    /** @var array<string, array<string, string>> */
     private array $footer_links = [];
+    /** @var array<string, array<string, string>> */
     private array $social_links = [];
+    /** @var array<string, array<string, string>> */
     private $dyn_references = [
-        'can_prospect'  => [
-            'label'     => 'I agree to receive emails from GLPI and Teclib (including Newsletters, as well as promotional offers and announcements)',
-            'in_list'   => false,
-            'checked'   => true,
-            'type'      => 'boolean'
-        ],
-        'num_assets'    => [
-            'label'         => 'Number of assets',
-            'short_label'   => '# assets'
-        ],
-        'num_helpdesk'  => [
-            'label'         => 'Number of helpdesk',
-            'short_label'   => '# helpdesk'
+        'num_members' => [
+            'label'         => 'Number of members',
+            'short_label'   => '#members'
         ]
      ];
 
@@ -44,11 +42,11 @@ class Project
     /**
      * Set project configuration
      *
-     * @param array $config Configuration values
+     * @param array<string, mixed> $config Configuration values
      *
      * @return Project
      */
-    public function setConfig($config)
+    public function setConfig(array $config): self
     {
         $this->checkConfig($config);
 
@@ -82,7 +80,7 @@ class Project
     /**
      * Check for required options in configuration
      *
-     * @param array $config Configuration values
+     * @param array<string, mixed> $config Configuration values
      *
      * @return void
      */
@@ -152,16 +150,16 @@ class Project
     }
 
     /**
-     * Generate or retrieve project's schema
+     * Generate or retrieve project's schema as JSON
      *
-     * @param Laminas\Cache\Storage\Adapter\AbstractAdapter|null $cache Cache instance
+     * @param AbstractAdapter|null $cache Cache instance
      *
-     * @return json
+     * @return string
      */
-    public function getSchema($cache)
+    public function getSchema(?AbstractAdapter $cache): string
     {
-        if (null != $cache && $cache->hasItem('schema')) {
-            $schema = $cache->getItem($this->getSlug() . '_schema.json');
+        if (null != $cache && $cache->hasItem($this->getSlug() . 'schema')) {
+            $schema = $cache->getItem($this->getSlug() . '_schema.json')->get();
             if (null != $schema) {
                 return $schema;
             }
@@ -228,7 +226,9 @@ class Project
         $schema = json_encode($schema);
 
         if (null != $cache) {
-            $cache->setItem($this->getSlug() . '_schema.json', $schema);
+            $cached_schema = $cache->getItem($this->getSlug() . '_schema.json');
+            $cached_schema->set($schema);
+            $cache->save($cached_schema);
         }
 
         return $schema;
@@ -237,11 +237,11 @@ class Project
     /**
      * Map schema data into model
      *
-     * @param array $json JSON sent data as array
+     * @param array<string, mixed> $json JSON sent data as array
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function mapModel($json)
+    public function mapModel(array $json): array
     {
         $slug = $this->getSlug();
 
@@ -306,7 +306,7 @@ class Project
      *
      * @return string
      */
-    public function truncate($string, $length)
+    public function truncate(string $string, int $length): string
     {
         if (mb_strlen($string) > $length) {
             if ($this->logger !== null) {
@@ -325,7 +325,7 @@ class Project
      *
      * @return string
      */
-    public function getSlug()
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -335,7 +335,7 @@ class Project
      *
      * @return string
      */
-    public function getURL()
+    public function getURL(): string
     {
         return $this->url;
     }
@@ -343,9 +343,9 @@ class Project
     /**
      * Get footer links
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function getFooterLinks()
+    public function getFooterLinks(): array
     {
         return $this->footer_links;
     }
@@ -353,9 +353,9 @@ class Project
     /**
      * Get social links
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function getSocialLinks()
+    public function getSocialLinks(): array
     {
         return $this->social_links;
     }
@@ -363,9 +363,9 @@ class Project
     /**
      * Get dynamic references
      *
-     * @return array|false
+     * @return array<string, array<string, string>>
      */
-    public function getDynamicReferences()
+    public function getDynamicReferences(): array
     {
         return $this->dyn_references;
     }

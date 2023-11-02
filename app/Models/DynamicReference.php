@@ -13,10 +13,12 @@ class DynamicReference extends Model
      * Set the table associated with the model.
      *
      * @param  string  $table
-     * @return void
+     *
+     * @return self
      */
     public function setTable($table)
     {
         $this->table = $table;
+        return $this;
     }
 }

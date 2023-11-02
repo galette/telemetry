@@ -7,11 +7,18 @@
     "pcre",
     "session",
     "mbstring"
-
   ],
   "symbol-whitelist": [
     "Twig\\Extension\\DebugExtension",
-    "Illuminate\\Support\\Facades\\DB"
+    "Twig\\Extension\\AbstractExtension",
+    "Twig\\Extension\\GlobalsInterface",
+    "Illuminate\\Support\\Facades\\DB",
+
+    "// DI functions",
+    "DI\\ContainerBuilder",
+
+    "// Not detected, do not know why.",
+    "Psr\\Container\\ContainerInterface"
   ],
   "scan-files": [
     "*.php",

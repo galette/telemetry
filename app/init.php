@@ -1,7 +1,8 @@
 <?php
 
 use GaletteTelemetry\Twig\CsrfExtension;
-use Psr\Http\Message\RequestInterface as Request;
+use Middlewares\TrailingSlash;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
@@ -9,7 +10,6 @@ use Illuminate\Pagination\Paginator;
 use Geggleto\Service\Captcha;
 use Psr\Container\ContainerInterface;
 use ReCaptcha\ReCaptcha;
-use Slim\Psr7\Response;
 use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -23,8 +23,9 @@ $config = require __DIR__ .  '/../config.inc.php';
 if (file_exists(__DIR__ . '/../local.config.inc.php')) {
     require_once __DIR__ . '/../local.config.inc.php';
 }
+
 if (!defined('TELEMETRY_MODE')) {
-    define('TELEMETRY_MODE', 'PROD');
+    define('TELEMETRY_MODE', ($config['debug'] === true ? 'DEV' : 'PROD'));
 }
 
 if (TELEMETRY_MODE == 'DEV') {
@@ -48,6 +49,7 @@ $builder->addDefinitions($config);
 $container = $builder->build();
 
 $app = Bridge::create($container);
+/** @var DI\Container */
 $container = $app->getContainer();
 
 $routeParser = $app->getRouteCollector()->getRouteParser();
@@ -55,7 +57,7 @@ $container->set(RouteParser::class, $routeParser);
 
 $app->setBasePath((function () {
     $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-    $uri = (string)parse_url('http://a' . $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $uri = (string)parse_url('http://a' . $_SERVER['REQUEST_URI'], PHP_URL_PATH);
     if (stripos($uri, $_SERVER['SCRIPT_NAME']) === 0) {
         return dirname($_SERVER['SCRIPT_NAME']);
     }
@@ -66,10 +68,6 @@ $app->setBasePath((function () {
 })());
 
 $app->addRoutingMiddleware();
-
-// init slim
-/*$app       = new \Slim\App(["settings" => $config]);
-$container = $app->getContainer();*/
 
 $container->set('mail_from', $config['mail_from']);
 $container->set('mail_admin', $config['mail_admin']);
@@ -212,7 +210,7 @@ $container->set(
 
 //setup recaptcha
 if (TELEMETRY_MODE == 'DEV') {
-    $recaptcha = function (Request $request, RequestHandler $handler) {
+    $recaptcha = function (ServerRequestInterface $request, RequestHandler $handler) {
         //does nothing
         $response = $handler->handle($request);
         return $response;
@@ -233,49 +231,6 @@ if (TELEMETRY_MODE == 'DEV') {
     $recaptcha = $container->get(Captcha::class);
 }
 
-// system error handling
-/*$customErrorHandler = function (
-    ServerRequestInterface $request,
-    Throwable $exception,
-    bool $displayErrorDetails,
-    bool $logErrors,
-    bool $logErrorDetails,
-    ?LoggerInterface $logger = null
-) use ($container, $app, $config) {
-    // log error
-    $container->get('logger')->error('error', [$exception->getMessage()]);
-    $response = $app->getResponseFactory()->createResponse();
-
-    // return json error
-    if (strpos($request->getHeaderLine('Content-Type'), 'application/json') !== false) {
-        $answer = [
-        'message' => 'Something went wrong!'
-        ];
-
-        if ($config['debug']) {
-            $answer['message'] = $exception->getMessage();
-        }
-
-        return $response
-            ->withStatus(500)
-            ->withHeader('Content-Type', 'application/json')
-            ->write(json_encode($answer));
-    }
-
-    // html error for production env
-    if (!$config['debug']) {
-        return $config->get(Twig::class)->render(
-            $response,
-            "errors/server.html"
-        );
-    }
-
-    // if not special case, return slim default handler
-    $error = new ErrorHandler();
-    return $error->__invoke($request, $response, $exception);
-};
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
-$errorMiddleware->setDefaultErrorHandler($customErrorHandler);*/
 $app->addErrorMiddleware(true, true, true);
 
 $container->set(
@@ -336,20 +291,6 @@ $container->set(
     }
 );
 
-// php error handler
-/*if (!$config['debug']) {
-    $container['phpErrorHandler'] = function ($c) {
-        return function ($request, $response, $error) use ($c) {
-            $c->get('logger')->error('error', [$error->getMessage()]);
-            return $c->get(Twig::class)->render(
-                $response,
-                "errors/server.html"
-            );
-        };
-    };
-}*/
-
-
 // manage page parameter for Eloquent Paginator
 // @see https://github.com/mattstauffer/Torch/blob/master/components/pagination/index.php
 Paginator::currentPageResolver(function ($pageName = 'page') {
@@ -367,30 +308,5 @@ Paginator::currentPathResolver(function () {
 $app->addRoutingMiddleware();
 $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 
-/**
- * Trailing slash middleware
- */
-$app->add(function (Request $request, RequestHandler $handler) {
-    $uri = $request->getUri();
-    $path = $uri->getPath();
-
-    if ($path != '/' && substr($path, -1) == '/') {
-        // recursively remove slashes when its more than 1 slash
-        $path = rtrim($path, '/');
-
-        // permanently redirect paths with a trailing slash
-        // to their non-trailing counterpart
-        $uri = $uri->withPath(substr($path, 0, -1));
-
-        if ($request->getMethod() == 'GET') {
-            $response = new Response();
-            return $response
-                ->withHeader('Location', (string) $uri)
-                ->withStatus(301);;
-        } else {
-            $request = $request->withUri($uri);
-        }
-    }
-
-    return $handler->handle($request);
-});
+//trailing slash middleware
+$app->add(new TrailingSlash(false)); // true adds the trailing slash (false removes it)

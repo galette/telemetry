@@ -2,6 +2,9 @@
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property-read  int $id
+ */
 class Telemetry extends Model
 {
     protected $table = 'telemetry';
