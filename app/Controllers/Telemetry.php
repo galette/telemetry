@@ -121,26 +121,26 @@ class Telemetry extends ControllerAbstract
 
         // retrieve top 5 plugins
         $top_plugins = PluginModel::query()->join(
-            'telemetry_glpi_plugin',
-            'glpi_plugin.id',
+            'plugins_telemetry',
+            'plugins.id',
             '=',
-            'telemetry_glpi_plugin.glpi_plugin_id'
+            'plugins_telemetry.plugin_id'
         )
-            ->select(DB::raw("glpi_plugin.pkey, count(telemetry_glpi_plugin.*) as total"))
+            ->select(DB::raw("plugins.name, count(plugins_telemetry.*) as total"))
             ->where(
-                'telemetry_glpi_plugin.created_at',
+                'plugins_telemetry.created_at',
                 '>=',
                 DB::raw("NOW() - INTERVAL '$years YEAR'")
             )
             ->orderBy('total', 'desc')
             ->limit(5)
-            ->groupBy(DB::raw("glpi_plugin.pkey"))
+            ->groupBy(DB::raw("plugins.name"))
             ->get()
             ->toArray();
         $dashboard['top_plugins'] = json_encode([[
             'type'   => 'bar',
             'marker' => ['color' => "#22727B"],
-            'x'      => array_column($top_plugins, 'pkey'),
+            'x'      => array_column($top_plugins, 'name'),
             'y'      => array_column($top_plugins, 'total')
         ]]);
 
@@ -298,7 +298,7 @@ class Telemetry extends ControllerAbstract
 
             PluginTelemetry::query()->create([
                 'telemetry_entry_id' => $telemetry_m->id,
-                'glpi_plugin_id'     => $plugin_m->id,
+                'plugin_id'     => $plugin_m->id,
                 'version'            => $plugin['version']
             ]);
         }
@@ -371,19 +371,19 @@ class Telemetry extends ControllerAbstract
         }
 
         $top_plugins = PluginModel::query()->join(
-            'telemetry_glpi_plugin',
-            'glpi_plugin.id',
+            'plugins_telemetry',
+            'plugins.id',
             '=',
-            'telemetry_glpi_plugin.glpi_plugin_id'
+            'plugins_telemetry.plugin_id'
         )
-            ->selectRaw(DB::raw("glpi_plugin.pkey, count(telemetry_glpi_plugin.*) as total"))
+            ->selectRaw(DB::raw("plugins.name, count(plugins_telemetry.*) as total"))
             ->where(
-                'telemetry_glpi_plugin.created_at',
+                'plugins_telemetry.created_at',
                 '>=',
                 DB::raw("NOW() - INTERVAL '$years YEAR'")
             )
             ->orderBy('total', 'desc')
-            ->groupBy(DB::raw("glpi_plugin.pkey"))
+            ->groupBy(DB::raw("plugins.name"))
             ->limit(30)
             ->get()
             ->toArray();
@@ -394,7 +394,7 @@ class Telemetry extends ControllerAbstract
                 [
                     'type'   => 'bar',
                     'marker' => ['color' => "#22727B"],
-                    'x'      => array_column($top_plugins, 'pkey'),
+                    'x'      => array_column($top_plugins, 'name'),
                     'y'      => array_column($top_plugins, 'total')
                 ]
             ]

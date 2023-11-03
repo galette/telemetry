@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Plugin extends Model
 {
-    protected $table = 'glpi_plugin';
+    protected $table = 'plugins';
     protected $guarded = [
       'id'
     ];
