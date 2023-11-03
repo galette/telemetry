@@ -156,11 +156,11 @@ $(document).ready(function() {
         );
     }
 
-    var glpi_versions = $('#glpi_versions');
-    if (glpi_versions.length > 0) {
+    var galette_versions = $('#galette_versions');
+    if (galette_versions.length > 0) {
         Plotly.newPlot(
-            "glpi_versions",
-            plotlyData(glpi_versions.data("id")),
+            "galette_versions",
+            plotlyData(galette_versions.data("id")),
             plotly_pie_layout,
             plotly_config
         );

@@ -247,9 +247,9 @@ class Project
 
         //basic mapping
         $data = [
-            'glpi_uuid' => $this->truncate($json[$slug]['uuid'], 41),
-            'glpi_version' => $this->truncate($json[$slug]['version'], 25),
-            'glpi_default_language' => $this->truncate($json[$slug]['default_language'], 10),
+            'instance_uuid' => $this->truncate($json[$slug]['uuid'], 41),
+            'galette_version' => $this->truncate($json[$slug]['version'], 25),
+            'instance_default_language' => $this->truncate($json[$slug]['default_language'], 10),
             'db_engine' => $this->truncate($json['system']['db']['engine'], 50),
             'db_version' => $this->truncate($json['system']['db']['version'], 50),
             'db_size' => (int) $json['system']['db']['size'],
@@ -270,30 +270,11 @@ class Project
             'os_version' => $this->truncate($json['system']['os']['version'], 50),
         ];
 
-        $usage = [];
-        //mapping from schema configuration for usage
-        if (null !== $this->schema_usage) {
-            if (false !== $this->schema_usage) {
-                foreach ($this->mapping as $local => $origin) {
-                    $usage[$origin] = $this->truncate($json[$slug]['usage'][$local], 25);
-                }
-            }
-        } else {
-            $usage = [
-                'glpi_avg_entities' => $this->truncate($json[$slug]['usage']['avg_entities'], 50),
-                'glpi_avg_computers' => $this->truncate($json[$slug]['usage']['avg_computers'], 50),
-                'glpi_avg_networkequipments' => $this->truncate($json[$slug]['usage']['avg_networkequipments'], 50),
-                'glpi_avg_tickets' => $this->truncate($json[$slug]['usage']['avg_tickets'], 25),
-                'glpi_avg_problems' => $this->truncate($json[$slug]['usage']['avg_problems'], 25),
-                'glpi_avg_changes' => $this->truncate($json[$slug]['usage']['avg_changes'], 25),
-                'glpi_avg_projects' => $this->truncate($json[$slug]['usage']['avg_projects'], 25),
-                'glpi_avg_users' => $this->truncate($json[$slug]['usage']['avg_users'], 25),
-                'glpi_avg_groups' => $this->truncate($json[$slug]['usage']['avg_groups'], 25),
-                'glpi_ldap_enabled' => (bool) $json[$slug]['usage']['ldap_enabled'],
-                // 'glpi_smtp_enabled' => (bool) $json[$slug]['usage']['smtp_enabled'],
-                'glpi_mailcollector_enabled' => (bool) $json[$slug]['usage']['mailcollector_enabled']
-            ];
-        }
+        $usage = [
+            'avg_members' => $this->truncate($json[$slug]['usage']['avg_members'], 50),
+            'avg_contributions' => $this->truncate($json[$slug]['usage']['avg_contributions'], 50),
+            'avg_transactions' => $this->truncate($json[$slug]['usage']['avg_transactions'], 50),
+        ];
 
         return $data + $usage;
     }
