@@ -67,7 +67,7 @@
                 <a href="{{ url_for('orderReferences', {'field': 'num_members'}) }}">Members</a>
             </th>
             <th>
-                {% if orderby == 'created_at' %}<i class="fa fa-sort-{{ sort }}"></i>{% endif %}
+                {% if orderby == 'created_at' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
                 <a href="{{ url_for('orderReferences', {'field': 'created_at'}) }}">Registration date</a>
             </th>
             <th>
