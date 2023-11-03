@@ -9,9 +9,9 @@ use Slim\Psr7\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 
 use GaletteTelemetry\Models\Telemetry  as TelemetryModel;
-use GaletteTelemetry\Models\GlpiPlugin as GlpiPluginModel;
+use GaletteTelemetry\Models\Plugin as PluginModel;
 use GaletteTelemetry\Models\Reference  as ReferenceModel;
-use GaletteTelemetry\Models\TelemetryGlpiPlugin;
+use GaletteTelemetry\Models\PluginTelemetry;
 
 class Telemetry extends ControllerAbstract
 {
@@ -120,7 +120,7 @@ class Telemetry extends ControllerAbstract
         ]]);
 
         // retrieve top 5 plugins
-        $top_plugins = GlpiPluginModel::query()->join(
+        $top_plugins = PluginModel::query()->join(
             'telemetry_glpi_plugin',
             'glpi_plugin.id',
             '=',
@@ -293,10 +293,10 @@ class Telemetry extends ControllerAbstract
 
         // manage plugins
         foreach ($json[$project->getSlug()]['plugins'] as $plugin) {
-            /** @var GlpiPluginModel $plugin_m */
-            $plugin_m = GlpiPluginModel::query()->firstOrCreate(['pkey' => $plugin['key']]);
+            /** @var PluginModel $plugin_m */
+            $plugin_m = PluginModel::query()->firstOrCreate(['name' => $plugin['key']]);
 
-            TelemetryGlpiPlugin::query()->create([
+            PluginTelemetry::query()->create([
                 'telemetry_entry_id' => $telemetry_m->id,
                 'glpi_plugin_id'     => $plugin_m->id,
                 'version'            => $plugin['version']
@@ -370,7 +370,7 @@ class Telemetry extends ControllerAbstract
             $years = $get['years'];
         }
 
-        $top_plugins = GlpiPluginModel::query()->join(
+        $top_plugins = PluginModel::query()->join(
             'telemetry_glpi_plugin',
             'glpi_plugin.id',
             '=',
