@@ -262,8 +262,7 @@ class Telemetry extends ControllerAbstract
 
         // check json structure
         $project = $this->container->get('project');
-        $cache = $this->container->get('is_debug') ? null : $this->container->get('cache');
-        $schema = json_decode($project->getSchema($cache));
+        $schema = $project->getSchema();
 
         $storage = new SchemaStorage();
         $storage->addSchema('file://mySchema', $schema);
@@ -357,8 +356,7 @@ class Telemetry extends ControllerAbstract
 
     public function schema(Request $request, Response $response): Response
     {
-        $cache = $this->container->get('is_debug') ? null : $this->container->get('cache');
-        $schema = $this->container->get('project')->getSchema($cache);
+        $schema = $this->container->get('project')->getSchema();
         return $this->withJson($response, $schema);
     }
 
