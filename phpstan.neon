@@ -1,7 +1,7 @@
 parameters:
     parallel:
         maximumNumberOfProcesses: 2
-    level: 1
+    level: 6
     paths:
         - app/
     ignoreErrors:
