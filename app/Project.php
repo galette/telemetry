@@ -20,13 +20,6 @@ class Project
     private array $footer_links = [];
     /** @var array<string, array<string, string>> */
     private array $social_links = [];
-    /** @var array<string, array<string, string>> */
-    private $dyn_references = [
-        'num_members' => [
-            'label'         => 'Number of members',
-            'short_label'   => '#members'
-        ]
-     ];
 
     /**
      * Constructor
@@ -70,10 +63,6 @@ class Project
             $this->social_links = $config['social_links'];
         }
 
-        if (isset($config['dyn_references'])) {
-            $this->dyn_references = $config['dyn_references'];
-        }
-
         return $this;
     }
 
@@ -108,22 +97,6 @@ class Project
         if (isset($config['schema']['plugins'])) {
             if (false !== $config['schema']['plugins']) {
                 throw new \UnexpectedValueException('Schema plugins must be false if present!');
-            }
-        }
-
-        if (isset($config['dyn_references'])) {
-            if (!is_array($config['dyn_references']) && $config['dyn_references'] !== false) {
-                throw new \UnexpectedValueException('Dynamic references configuration must be an array or false');
-            }
-        }
-
-        $known_types = [
-            'number',
-            'boolean'
-        ];
-        foreach ($this->dyn_references as $reference) {
-            if (isset($reference['type']) && !in_array($reference['type'], $known_types)) {
-                throw new \UnexpectedValueException('Unkown type ' . $reference['type']);
             }
         }
     }
@@ -339,15 +312,5 @@ class Project
     public function getSocialLinks(): array
     {
         return $this->social_links;
-    }
-
-    /**
-     * Get dynamic references
-     *
-     * @return array<string, array<string, string>>
-     */
-    public function getDynamicReferences(): array
-    {
-        return $this->dyn_references;
     }
 }

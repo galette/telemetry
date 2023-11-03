@@ -1,7 +1,6 @@
 <?php namespace GaletteTelemetry\Controllers;
 
 use GaletteTelemetry\Models\Reference as ReferenceModel;
-use GaletteTelemetry\Models\DynamicReference;
 use PHPMailer\PHPMailer\PHPMailer;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
@@ -84,7 +83,6 @@ class Reference extends ControllerAbstract
                 'references'    => $references,
                 'orderby'       => $_SESSION['reference']['orderby'],
                 'sort'          => $_SESSION['reference']['sort'],
-                //'dyn_refs'      => $dyn_refs,
                 'filters'       => $current_filters,
                 'ref_countries' => $ref_countries
             ]
@@ -102,17 +100,6 @@ class Reference extends ControllerAbstract
         unset($post['csrf_value']);
 
         $ref_data = $post;
-        $dyn_data = [];
-
-        $dyn_ref = $this->container->get('project')->getDynamicReferences();
-        if (false !== $dyn_ref) {
-            foreach (array_keys($dyn_ref) as $ref) {
-                if (isset($post[$ref])) {
-                    $dyn_data[$ref] = (int)$post[$ref];
-                    unset($ref_data[$ref]);
-                }
-            }
-        }
 
         // alter data
         $ref_data['country'] = strtolower($ref_data['country']);
@@ -127,28 +114,6 @@ class Reference extends ControllerAbstract
                 ['uuid' => $ref_data['uuid']],
                 $ref_data
             );
-        }
-
-        if (false !== $dyn_ref) {
-            $dref = new DynamicReference();
-            $dynamics = $dref->newInstance();
-            $dynamics->setTable($this->container->get('project')->getSlug() . '_reference');
-
-            /** @phpstan-ignore-next-line */
-            $exists = $dynamics->where('reference_id', $reference['id'])->get();
-
-            if (0 === $exists->count()) {
-                $dyn_data['reference_id'] = $reference['id'];
-                /** @phpstan-ignore-next-line */
-                $dynamics->insert(
-                    $dyn_data
-                );
-            } else {
-                /** @phpstan-ignore-next-line */
-                $dynamics
-                    ->where('reference_id', '=', $reference['id'])
-                    ->update($dyn_data);
-            }
         }
 
         // send a mail to admin
