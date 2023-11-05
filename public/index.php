@@ -1,6 +1,6 @@
 <?php
 
-global $container, $recaptcha;
+global $container;
 
 use Slim\App;
 
@@ -33,7 +33,6 @@ $app->get(
 
 //Reference registration
 $app->post('/reference', 'GaletteTelemetry\Controllers\Reference:register')
-   ->add($recaptcha)
    ->add($container->get('csrf'))
    ->setName('registerReference');
 /** /References */

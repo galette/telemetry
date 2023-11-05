@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be1923043be2fc5c78d108c7fbfd2307",
+    "content-hash": "17bcf5cb48cebe95263a3c801406ba6f",
     "packages": [
         {
             "name": "brick/math",
@@ -440,107 +440,6 @@
                 "source": "https://github.com/php-fig/http-message-util/tree/1.1.5"
             },
             "time": "2020-11-24T22:02:12+00:00"
-        },
-        {
-            "name": "geggleto/psr7-recaptcha",
-            "version": "0.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/geggleto/psr7-recaptcha.git",
-                "reference": "648c0e62c12289892d88b5165c5bce6f50213c6a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/geggleto/psr7-recaptcha/zipball/648c0e62c12289892d88b5165c5bce6f50213c6a",
-                "reference": "648c0e62c12289892d88b5165c5bce6f50213c6a",
-                "shasum": ""
-            },
-            "require": {
-                "google/recaptcha": "~1.1",
-                "psr/http-message": "^1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.0",
-                "slim/slim": "^3.0-RC2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Geggleto\\Service\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Glenn Eggleton",
-                    "email": "geggleto@gmail.com"
-                }
-            ],
-            "keywords": [
-                "framework",
-                "middleware",
-                "slim"
-            ],
-            "support": {
-                "issues": "https://github.com/geggleto/psr7-recaptcha/issues",
-                "source": "https://github.com/geggleto/psr7-recaptcha/tree/master"
-            },
-            "time": "2015-11-16T15:35:16+00:00"
-        },
-        {
-            "name": "google/recaptcha",
-            "version": "1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/google/recaptcha.git",
-                "reference": "d59a801e98a4e9174814a6d71bbc268dff1202df"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/google/recaptcha/zipball/d59a801e98a4e9174814a6d71bbc268dff1202df",
-                "reference": "d59a801e98a4e9174814a6d71bbc268dff1202df",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.14",
-                "php-coveralls/php-coveralls": "^2.5",
-                "phpunit/phpunit": "^10"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "ReCaptcha\\": "src/ReCaptcha"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Client library for reCAPTCHA, a free service that protects websites from spam and abuse.",
-            "homepage": "https://www.google.com/recaptcha/",
-            "keywords": [
-                "Abuse",
-                "captcha",
-                "recaptcha",
-                "spam"
-            ],
-            "support": {
-                "forum": "https://groups.google.com/forum/#!forum/recaptcha",
-                "issues": "https://github.com/google/recaptcha/issues",
-                "source": "https://github.com/google/recaptcha"
-            },
-            "time": "2023-02-18T17:41:46+00:00"
         },
         {
             "name": "illuminate/collections",
@@ -4843,7 +4742,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.1",
-        "ext-pgsql": "*"
+        "ext-pgsql": "*",
+        "ext-intl": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"

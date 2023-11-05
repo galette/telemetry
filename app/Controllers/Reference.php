@@ -1,5 +1,6 @@
 <?php namespace GaletteTelemetry\Controllers;
 
+use GaletteTelemetry\Gaptcha;
 use GaletteTelemetry\Models\Reference as ReferenceModel;
 use PHPMailer\PHPMailer\PHPMailer;
 use Slim\Psr7\Request;
@@ -18,6 +19,9 @@ class Reference extends ControllerAbstract
                 "sort"    => "desc"
             ];
         }
+
+        $gaptcha = new Gaptcha();
+        $_SESSION['gaptcha'] = serialize($gaptcha);
 
         $_SESSION['reference']['pagination'] = 15;
         $order_field = $_SESSION['reference']['orderby'];
@@ -84,7 +88,8 @@ class Reference extends ControllerAbstract
                 'orderby'       => $_SESSION['reference']['orderby'],
                 'sort'          => $_SESSION['reference']['sort'],
                 'filters'       => $current_filters,
-                'ref_countries' => $ref_countries
+                'ref_countries' => $ref_countries,
+                'gaptcha'       => $gaptcha
             ]
         );
         return $response;
@@ -95,11 +100,31 @@ class Reference extends ControllerAbstract
         $post = $request->getParsedBody();
 
         // clean data
-        unset($post['g-recaptcha-response']);
+        $posted_gaptcha = (int)$post['gaptcha'];
+        unset($post['gaptcha']);
         unset($post['csrf_name']);
         unset($post['csrf_value']);
 
+        if (empty($post['num_members'])) {
+            unset($post['num_members']);
+        }
+
         $ref_data = $post;
+
+        //check captcha
+        $gaptcha = unserialize($_SESSION['gaptcha']);
+        if (!$gaptcha->check($posted_gaptcha)) {
+            $this->container->get('flash')->addMessage(
+                'error',
+                'Invalid captcha'
+            );
+            return $response
+                ->withStatus(301)
+                ->withHeader(
+                    'Location',
+                    $this->routeparser->urlFor('reference')
+                );
+        }
 
         // alter data
         $ref_data['country'] = strtolower($ref_data['country']);

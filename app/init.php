@@ -208,29 +208,6 @@ $container->set(
     }
 );
 
-//setup recaptcha
-if (TELEMETRY_MODE == 'DEV') {
-    $recaptcha = function (ServerRequestInterface $request, RequestHandler $handler) {
-        //does nothing
-        $response = $handler->handle($request);
-        return $response;
-    };
-} else {
-    $container->set(
-        Captcha::class,
-        function ($c) {
-            return new Captcha($c->get(ReCaptcha::class));
-        }
-    );
-    $container->set(
-        ReCaptcha::class,
-        function ($c) use ($config) {
-            return new ReCaptcha($config['recaptcha']['secret']);
-        }
-    );
-    $recaptcha = $container->get(Captcha::class);
-}
-
 $app->addErrorMiddleware(true, true, true);
 
 $container->set(
