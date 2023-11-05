@@ -184,9 +184,11 @@
                    <textarea name="comment" id="comment" rows="3" placeholder="Your message"></textarea>
                </div>
 
-               {% if mode != 'DEV' %}
-                   <div class="g-recaptcha" data-sitekey="{{ recaptchasitekey }}"></div>
-               {% endif %}
+                <div class="field">
+                    <label for="gaptcha" title="">Captcha</label>
+                    <p><span class="ui medium red text">{{ gaptcha.generateQuestion() }} (numbers only)</span></p>
+                    <input type="gaptcha" name="gaptcha" id="gaptcha" value="" required="required" class="required" autocomplete="1">
+                </div>
 
                 <input type="hidden" name="uuid" value="{{ uuid }}" />
                 {% include "partials/csrf.html.twig" %}

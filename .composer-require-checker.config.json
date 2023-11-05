@@ -6,7 +6,8 @@
     "json",
     "pcre",
     "session",
-    "mbstring"
+    "mbstring",
+    "random"
   ],
   "symbol-whitelist": [
     "Twig\\Extension\\DebugExtension",
