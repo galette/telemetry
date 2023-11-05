@@ -22,8 +22,7 @@ require_once __DIR__ . '/config.inc.php';
 $dconf = $config['db'];
 $pconfig = [
     'paths'         => [
-        'migrations'    => ['%%PHINX_CONFIG_DIR%%/db/migrations'],
-        'seeds'         => '%%PHINX_CONFIG_DIR%%/db/seeds'
+        'migrations'    => ['%%PHINX_CONFIG_DIR%%/db/migrations']
     ],
     'environments'  => [
         'default_migration_table'   => 'phinxlog',

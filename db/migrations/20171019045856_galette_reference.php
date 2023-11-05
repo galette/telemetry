@@ -3,7 +3,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class ProspectReference extends AbstractMigration
+class GaletteReference extends AbstractMigration
 {
     /**
      * Change Method.
@@ -30,10 +30,19 @@ class ProspectReference extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('glpi_reference');
+        $table = $this->table('galette_reference');
         $table
-            ->addColumn('can_prospect', 'boolean', ['default' => false])
-            ->update()
+            ->addColumn('reference_id', 'integer')
+            ->addForeignKey(
+                'reference_id',
+                'reference',
+                'id',
+                ['constraint' => 'telemetry_galette_reference_reference_id_fkey']
+            )
+            ->addColumn('num_members', 'integer', ['null' => true])
+            ->addTimestamps()
+            ->addIndex(['reference_id'], ['unique' => true])
+            ->create()
         ;
     }
 }

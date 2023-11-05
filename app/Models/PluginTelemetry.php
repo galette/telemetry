@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class TelemetryGlpiPlugin extends Model
+class PluginTelemetry extends Model
 {
-    protected $table = 'telemetry_glpi_plugin';
+    protected $table = 'plugins_telemetry';
     protected $guarded = [];
 }

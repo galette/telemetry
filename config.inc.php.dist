@@ -54,12 +54,6 @@ return $config = [
             'avg_members'       => 'avg_entities',
             'avg_contributions' => 'avg_computers',
             'avg_transactions'  => 'avg_networkequipments'
-        ],
-        'dyn_references' => [
-            'num_members' => [
-                'label'         => 'Number of members',
-                'short_label'   => '#members'
-            ]
         ]
     ],
    'baseurl' => 'https://telemetry.galette.eu',

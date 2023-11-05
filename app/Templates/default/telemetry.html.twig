@@ -69,12 +69,12 @@
       {% include 'partials/chart.html.twig' with vars %}
       </div>
 
-    {% if glpi_versions %}
+    {% if galette_versions %}
       <div class="chart chart-2 chart-2h">
       {% set vars = {'chart': {
-                        'id': 'glpi_versions',
+                        'id': 'galette_versions',
                         'title': 'Galette versions',
-                        'data': glpi_versions
+                        'data': galette_versions
                      }} %}
       {% include 'partials/chart.html.twig' with vars %}
       </div>

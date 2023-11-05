@@ -1,16 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {},
-    "id": "http://example.com/example.json",
+    "id": "https://galette.eu",
     "properties": {
         "data": {
             "properties": {
-                "project": {
+                "galette": {
                     "properties": {
                         "default_language": {
-                            "type": "string"
-                        },
-                        "install_mode": {
                             "type": "string"
                         },
                         "plugins": {
@@ -33,57 +30,20 @@
                         },
                         "usage": {
                             "properties": {
-                                "avg_changes": {
+                                "avg_members": {
                                     "type": "string"
                                 },
-                                "avg_computers": {
+                                "avg_contributions": {
                                     "type": "string"
                                 },
-                                "avg_entities": {
+                                "avg_transactions": {
                                     "type": "string"
-                                },
-                                "avg_groups": {
-                                    "type": "string"
-                                },
-                                "avg_networkequipments": {
-                                    "type": "string"
-                                },
-                                "avg_problems": {
-                                    "type": "string"
-                                },
-                                "avg_projects": {
-                                    "type": "string"
-                                },
-                                "avg_tickets": {
-                                    "type": "string"
-                                },
-                                "avg_users": {
-                                    "type": "string"
-                                },
-                                "ldap_enabled": {
-                                    "type": "boolean"
-                                },
-                                "mailcollector_enabled": {
-                                    "type": "boolean"
-                                },
-                                "notifications_modes": {
-                                    "items": {},
-                                    "type": "array"
                                 }
                             },
                             "required": [
-                                "avg_networkequipments",
-                                "avg_groups",
-                                "mailcollector_enabled",
-                                "avg_projects",
-                                "avg_entities",
-                                "avg_problems",
-                                "avg_changes",
-                                "avg_computers",
-                                "avg_users",
-                                "ldap_enabled",
-                                "avg_tickets",
-                                "notifications_modes"
+                                "avg_members",
+                                "avg_contributions",
+                                "avg_transactions"
                             ],
                             "type": "object"
                         },
@@ -227,7 +187,7 @@
                 }
             },
             "required": [
-                "project",
+                "galette",
                 "system"
             ],
             "type": "object"
