@@ -41,7 +41,7 @@ class Telemetry extends ControllerAbstract
         // retrieve nb of reference entries
         $raw_nb_ref_entries = ReferenceModel::query()
             ->where(
-                'created_at',
+                'updated_at',
                 '>=',
                 DB::raw("NOW() - INTERVAL '$years YEAR'")
             )
