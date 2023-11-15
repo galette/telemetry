@@ -68,7 +68,7 @@
             </th>
             <th>
                 {% if orderby == 'created_at' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ url_for('orderReferences', {'field': 'created_at'}) }}">Registration date</a>
+                <a href="{{ url_for('orderReferences', {'field': 'updated_at'}) }}">Registration date</a>
             </th>
             <th>
                 Comment
@@ -88,7 +88,7 @@
                     <i class="{{ reference.country|lower }} flag"></i>{{ countries_names[reference.country] }}
                 </td>
                 <td class="right aligned">{{ reference.num_members }}</td>
-                <td>{{ reference.created_at|date("Y-m-d") }}</td>
+                <td>{{ reference.updated_at|date("Y-m-d") }}</td>
                 <td class="ellipsis tooltip" title="{{ reference.comment }}">
                     {{ reference.comment }}
                 </td>
