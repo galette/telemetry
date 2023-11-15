@@ -15,7 +15,7 @@ class Reference extends ControllerAbstract
         // default session param for this controller
         if (!isset($_SESSION['reference'])) {
             $_SESSION['reference'] = [
-                "orderby" => 'created_at',
+                "orderby" => 'updated_at',
                 "sort"    => "desc"
             ];
         }
