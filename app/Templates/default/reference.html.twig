@@ -81,7 +81,7 @@
                     {% if reference.url %}
                         {% if reference.url matches '/^https?:\\/\\//' %}
                             {% set ref_url = reference.url %}
-                        {%  else %}
+                        {% else %}
                             {% set ref_url = 'https://' ~ reference.url %}
                         {% endif %}
                         <a href="{{ ref_url }}" target="_blank">{{ reference.name }}</a>
