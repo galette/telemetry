@@ -79,7 +79,12 @@
             <tr>
                 <td class="single line">
                     {% if reference.url %}
-                        <a href="{{ reference.url }}" target="_blank">{{ reference.name }}</a>
+                        {% if reference.url matches '/^https?:\\/\\//' %}
+                            {% set ref_url = reference.url %}
+                        {%  else %}
+                            {% set ref_url = 'https://' ~ reference.url %}
+                        {% endif %}
+                        <a href="{{ ref_url }}" target="_blank">{{ reference.name }}</a>
                     {% else %}
                         {{ reference.name }}
                     {% endif %}
