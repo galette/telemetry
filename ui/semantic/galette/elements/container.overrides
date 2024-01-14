@@ -1,0 +1,15 @@
+/*******************************
+         Galette Overrides
+*******************************/
+
+@media only screen and (min-width: 768px) {
+   .ui.ui.ui.very.wide.container {
+      width: 92%;
+   }
+}
+
+@media only screen and (min-width: 1920px) {
+   .ui.ui.ui.very.wide.container {
+      width: 1780px;
+   }
+}

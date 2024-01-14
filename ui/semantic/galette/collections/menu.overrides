@@ -2,58 +2,17 @@
          Galette Overrides
 *******************************/
 
-/*--------------
-     Header
----------------*/
-
-.ui.menu .header.item,
-.ui.vertical.menu .header.item {
-  font-weight: @headerWeight;
-  text-align: left;
+nav.top-nav {
+  background: @white;
+  box-shadow: rgba(0,0,0,0.2) 0px 2px 9px;
+  z-index: 2;
+  position: relative;
 }
-
-& when (@variationMenuFixed) {
-  /*--------------
-       Fixed
-  ---------------*/
-  .ui.fixed.menu .item {
-    background: rgba(255,255,255,.6);
-  }
-  .ui.fixed.menu .item.active {
-    background: @activeItemBackground;
-  }
+nav.top-nav .ui.secondary.menu {
+  margin-bottom: 0;
 }
-
-& when (@variationMenuVertical) {
-  /*--------------
-      Vertical
-  ---------------*/
-
-  .ui.vertical.menu {
-    display: block;
-    flex-direction: column;
-    background: @verticalBackground;
-    box-shadow: @verticalBoxShadow;
-  }
-  .ui.vertical.menu {
-    border: @border;
-  }
-  .ui.vertical.menu div.item .ui.button {
-    width: 100%;
-    border: @border;
-    margin: 0 0 .4rem 0;
-    box-shadow: none;
-  }
-  .ui.vertical.menu div.item .item.button::before {
-    content: none;
-  }
-}
-
-/*------------------
-     Pagination
--------------------*/
-@media only screen and (max-width: 991px) {
-  .ui.menu.pagination {
-    width: 100%;
+@media only screen and (max-width: 509px) {
+  nav.top-nav .ui.menu:not(.vertical) .header.item {
+    display: none;
   }
 }

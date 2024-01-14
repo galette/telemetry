@@ -11,7 +11,7 @@
 
 {% set myheader = {
    'title': 'Telemetry',
-   'icon': 'database',
+   'icon': 'chart bar outline',
    'text': '<strong>Anonymous data</strong> collected from voluntary users instances.'
 } %}
 {{ parent() }}
@@ -19,137 +19,146 @@
 
 {% block content %}
 
-   <form>
-      <div class="ui form basic segment right aligned">
-         <div class="inline field">
-               <label for="years">Data since</label>
-               <select name="years" id="years" >
-                  <option value='-1'>always</option>
-                  {% for i in 1..20 %}
-                     <option value="{{ i }}"{% if form.years == i %} selected="selected"{% endif %}>
-                        {{ i }} {% if i < 2  %}year{% else %}years{% endif %}
-                     </option>
-                  {% endfor %}
-               </select>
-               <input type="submit" value="Filter" class="ui button primary" />
-         </div>
-      </div>
-   </form>
+<main class="ui very wide container">
+   <div class="ui basic segment">
+      <form class="ui unstackable form">
+        <div class="ui horizontally fitted basic segment">
+           <div class="inline unstackable fields">
+              <div class="field">
+                 <label for="years">Data since</label>
+                 <select name="years" id="years" class="ui selection dropdown">
+                    <option value='-1'>always</option>
+                    {% for i in 1..20 %}
+                       <option value="{{ i }}"{% if form.years == i %} selected="selected"{% endif %}>
+                          {{ i }} {% if i < 2  %}year{% else %}years{% endif %}
+                       </option>
+                    {% endfor %}
+                 </select>
+              </div>
+              <div class="field">
+                 <button type="submit" class="ui primary button"><i class="filter icon"></i> Filter</button>
+              </div>
+           </div>
+        </div>
+      </form>
+      <div class="dashboard">
 
-   <div class="dashboard">
+        <div class="chart-sizer"></div>
 
-    {% if nb_telemetry_entries %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id': 'nb_telemetry_entries',
-                        'title': '# Telemetry: data sent',
-                        'data': nb_telemetry_entries
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
-    {% if nb_reference_entries %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id': 'nb_reference_entries',
-                        'title': '# References added',
-                        'data': nb_reference_entries,
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
-      <div class="chart chart-2 chart-2h">
-      {% set vars = {'chart': {
-                        'id': 'references_countries',
-                        'title': 'Countries of references',
-                        'data': references_countries
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-
-    {% if galette_versions %}
-      <div class="chart chart-2 chart-2h">
-      {% set vars = {'chart': {
-                        'id': 'galette_versions',
-                        'title': 'Galette versions',
-                        'data': galette_versions
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
-    {% if top_plugins %}
-        <script type="text/javascript">
-            var _allPluginsURL = '{{ url_for('allPlugins') }}';
-        </script>
-      <div class="chart" data-expand-callback="pluginsExpanded">
-      {% set vars = {'chart': {
-                        'id': 'top_plugins',
-                        'title': 'Top plugins',
-                        'data': top_plugins,
-                        'expandable': true
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
-
-      {% if php_versions %}
-         <div class="chart chart-2">
-            {% set vars = {'chart': {
-               'id': 'php_versions',
-               'title': 'PHP versions',
-               'data': php_versions
-            }} %}
-            {% include 'partials/chart.html.twig' with vars %}
-         </div>
-      {% endif %}
-
-      {% if default_languages %}
+       {% if nb_telemetry_entries %}
          <div class="chart">
-            {% set vars = {'chart': {
-               'id': 'default_languages',
-               'title': 'Default languages',
-               'data': default_languages
-            }} %}
-            {% include 'partials/chart.html.twig' with vars %}
+         {% set vars = {'chart': {
+                           'id': 'nb_telemetry_entries',
+                           'title': 'Telemetry: data sent',
+                           'data': nb_telemetry_entries
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
          </div>
-      {% endif %}
+       {% endif %}
 
-      {% if os_family %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id': 'os_family',
-                        'title': 'Operating systems',
-                        'data': os_family
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
+       {% if nb_reference_entries %}
+         <div class="chart">
+         {% set vars = {'chart': {
+                           'id': 'nb_reference_entries',
+                           'title': 'References added',
+                           'data': nb_reference_entries,
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
 
-    {% if web_engines %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id': 'web_engines',
-                        'title': 'Web engines',
-                        'data': web_engines
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
-      </div>
-    {% endif %}
+         <div class="chart chart-2 chart-2h">
+         {% set vars = {'chart': {
+                           'id': 'references_countries',
+                           'title': 'Countries of references',
+                           'data': references_countries
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
 
-    {% if db_engines %}
-      <div class="chart">
-      {% set vars = {'chart': {
-                        'id': 'db_engines',
-                        'title': 'DB engines',
-                        'data': db_engines
-                     }} %}
-      {% include 'partials/chart.html.twig' with vars %}
+       {% if galette_versions %}
+         <div class="chart chart-2 chart-3 chart-2h">
+         {% set vars = {'chart': {
+                           'id': 'galette_versions',
+                           'title': 'Galette versions',
+                           'data': galette_versions
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
+
+       {% if top_plugins %}
+           <script type="text/javascript">
+               var _allPluginsURL = '{{ url_for('allPlugins') }}';
+           </script>
+         <div class="chart" data-expand-callback="pluginsExpanded">
+         {% set vars = {'chart': {
+                           'id': 'top_plugins',
+                           'title': 'Top plugins',
+                           'data': top_plugins,
+                           'expandable': true
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
+
+         {% if php_versions %}
+            <div class="chart chart-2">
+               {% set vars = {'chart': {
+                  'id': 'php_versions',
+                  'title': 'PHP versions',
+                  'data': php_versions
+               }} %}
+               {% include 'partials/chart.html.twig' with vars %}
+            </div>
+         {% endif %}
+
+         {% if default_languages %}
+            <div class="chart">
+               {% set vars = {'chart': {
+                  'id': 'default_languages',
+                  'title': 'Default languages',
+                  'data': default_languages
+               }} %}
+               {% include 'partials/chart.html.twig' with vars %}
+            </div>
+         {% endif %}
+
+         {% if os_family %}
+         <div class="chart">
+         {% set vars = {'chart': {
+                           'id': 'os_family',
+                           'title': 'Operating systems',
+                           'data': os_family
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
+
+       {% if web_engines %}
+         <div class="chart">
+         {% set vars = {'chart': {
+                           'id': 'web_engines',
+                           'title': 'Web engines',
+                           'data': web_engines
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
+
+       {% if db_engines %}
+         <div class="chart">
+         {% set vars = {'chart': {
+                           'id': 'db_engines',
+                           'title': 'DB engines',
+                           'data': db_engines
+                        }} %}
+         {% include 'partials/chart.html.twig' with vars %}
+         </div>
+       {% endif %}
       </div>
-    {% endif %}
    </div>
+</main>
 {% endblock %}
 
 {% block userscripts %}

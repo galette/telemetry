@@ -4,7 +4,13 @@ $(document).ready(function() {
         _toasts.toast();
     }
 
-    $('.tooltip').popup();
+    $('.tooltip').popup({
+        variation: 'inverted',
+        inline: false,
+        addTouchEvents: false,
+    });
+
+    $('.ui.dropdown').dropdown();
 
     function _darkMode() {
         var _dark_enabled = Cookies.get('galettetelemetry_dark_mode');

@@ -3,14 +3,15 @@ var references_map;
 $(document).ready(function() {
    // leaflet map for references countries
    references_map = L.map(
-       'references_countries',
-       {
-          fullscreenControl: true,
-          zoomSnap: 0.1
-       }
+      'references_countries',
+      {
+         fullscreenControl: true,
+         zoomSnap: 0.1,
+         gestureHandling: true
+      }
    ).setView(
-       [0.0, 0.0],
-       2
+      [0.0, 0.0],
+      2
    );
    L.tileLayer.provider('CartoDB.Positron', []).addTo(references_map);
    _loadMapRefs(references_map);

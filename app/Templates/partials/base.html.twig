@@ -6,7 +6,6 @@
       <meta http-equiv="Cache-control" content="no-cache" />
 
       <link rel="stylesheet" type="text/css" href="{{ base_path() }}/ui/semantic.min.css" />
-      <link rel="stylesheet" href="{{ base_path() }}/css/base.css" />
 
       {% if darkcss_created and darkcss_enabled %}
          <link rel="stylesheet" type="text/css" href="{{ url_for('getDarkCSS') }}">
@@ -19,10 +18,15 @@
       {% endblock %}
    </head>
    <body class="{{ class }}">
-      <div class="ui centered top secondary menu">
-         <div class="ui text container">
+      <nav class="top-nav">
+         <div class="ui centered secondary large menu">
+            <div class="header item">
+               <span>
+                  <img src="pics/logo.png" alt="Galette"/>
+               <span>
+            </div>
             <a href="{{ url_for("telemetry") }}" class="item">
-               <i class="database icon"></i>
+               <i class="chart bar outline icon"></i>
                Telemetry
             </a>
             <a href="{{ url_for('reference') }}" class="item">
@@ -33,59 +37,53 @@
                href="#"
                class="item{% if darkcss_created and darkcss_enabled %} black{% endif %} tooltip darkmode"
                title="{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}"
+               data-position="bottom center"
             >
                <i class="icon adjust"></i>
-               <span class="displaynone">{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}</span>
+               <span class="visually-hidden">{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}</span>
             </a>
          </div>
-      </div>
+      </nav>
 
       <!-- Page Contents -->
-      <div class="ui">
-         {% block header %}
-         <div class="ui vertical masthead center aligned segment page-header">
-            <div class="ui text container">
-               <h1 class="ui header">
-                  <i class="{{ myheader.icon }} icon"></i>
-                  {{ myheader.title }}
-               </h1>
-               <p>{{ myheader.text|raw }}</p>
-            </div>
+      {% block header %}
+      <header class="ui vertical masthead center aligned segment page-header">
+         <div class="ui text container">
+            <h1 class="ui header">
+               <i class="{{ myheader.icon }} icon"></i>
+               {{ myheader.title }}
+            </h1>
+            <p>{{ myheader.text|raw }}</p>
          </div>
-         {% endblock %}
+      </header>
+      {% endblock %}
 
-         {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
 
-         <div class="ui inverted basic segment">
-            <div class="ui grid">
-               <div class="two column row">
-                  <div class="left floated column">
-                     <a href="https://galette.eu">
-                        <img src="pics/logo.png" alt="Galette"/>
-                     </a>
-                  </div>
-                  <div class="right aligned column">
-                     <div class="ui inverted link horizontal list">
-                        {% for text, link in footer_links %}
-                           <a href="{{ link.url }}" class="item" target="_blank">
-                              <i class="icon {{ link.icon }}"></i>
-                              {{- text -}}
-                           </a>
-                        {% endfor %}
-                     </div><br/>
-                     <div class="ui inverted link horizontal list">
-                        {% for text, link in social_links %}
-                           <a href="{{ link.url }}" class="item tooltip" title="{{ text }}" target="_blank">
-                              <i class="ui icon {{ link.icon }}"></i>
-                              <span class="displaynone">{{- text -}}</span>
-                           </a>
-                        {% endfor %}
-                     </div>
+      <footer class="ui secondary inverted basic segment">
+         <div class="ui grid wide container">
+            <div class="row">
+               <div class="center aligned column">
+                  <div class="ui inverted link horizontal list">
+                     {% for text, link in footer_links %}
+                        <a href="{{ link.url }}" class="item" target="_blank">
+                           <i class="icon {{ link.icon }}"></i>
+                           {{- text -}}
+                        </a>
+                     {% endfor %}
+                  </div><br/>
+                  <div class="ui inverted link horizontal list">
+                     {% for text, link in social_links %}
+                        <a href="{{ link.url }}" class="item tooltip" title="{{ text }}" data-position="top center" target="_blank">
+                           <i class="ui icon {{ link.icon }}"></i>
+                           <span class="visually-hidden">{{- text -}}</span>
+                        </a>
+                     {% endfor %}
                   </div>
                </div>
             </div>
          </div>
-      </div>
+      </footer>
 
       {% include "partials/alerts.html.twig" %}
 
