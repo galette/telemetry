@@ -68,6 +68,7 @@ var paths = {
     leaflet: [
       './node_modules/leaflet/dist/leaflet.js',
       './node_modules/leaflet.fullscreen/Control.FullScreen.js',
+      './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js',
       './node_modules/leaflet-providers/leaflet-providers.js',
       './node_modules/spin.js/spin.js',
       './node_modules/leaflet-spin/leaflet.spin.js'
@@ -80,6 +81,7 @@ var paths = {
     leaflet: [
       './node_modules/leaflet/dist/leaflet.css',
       './node_modules/leaflet.fullscreen/Control.FullScreen.css',
+      './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.css',
     ]
   },
   extras: [
