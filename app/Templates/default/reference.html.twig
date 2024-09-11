@@ -5,212 +5,207 @@
 {% set myheader = {
    'title': 'References',
    'icon': 'users',
-   'text': '<a title="Do you also use Galette? Add your own reference!" id="register" href="#" class="ui icon button tooltip" data-toggle="modal" data-target="#register_reference"><i class="user plus icon"></i> register your instance</a>',
+   'text': '<a title="Do you also use Galette? Add your own reference!" id="register" href="#" class="ui labeled icon button tooltip" data-toggle="modal" data-target="#register_reference" data-position="top center"><i class="user plus icon"></i> Register your instance</a>',
 } %}
 {{ parent() }}
 {% endblock %}
 
 {% block content %}
-<div class="ui container">
-    <div class="ui center aligned info message">
-    <h4>
-        {% if filters.count is defined and filters.count != total %}
-            {{ filters.count }} on {{ total }} registered Galette installations
-        {% else %}
-            {{ total }} registered Galette installations
-        {% endif %}
-    </h4>
-    </div>
-
-    <form id="filter_references" action="{{ url_for('filterReferences') }}" method="POST">
-        <div class="ui form">
-            <div class="inline fields">
-                <div class="eight wide field">
-                    <input name="filter_name" id="filter_name" type="text" class="form-control form-control-sm" placeholder="Name" value="{{ filters.name|default('') }}">
-                </div>
-                <div class="seven wide field">
-                    <div class="ui fluid search clearable selection dropdown">
-                        <input type="hidden" name="filter_country" value="{{ filters.country ?? '' }}">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Select Country</div>
-                        <div class="menu">
-                            {% for country in countries %}
-                                {% if country.cca2|lower in ref_countries %}
-                                    <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="one wide field right aligned">
-                    <button type="submit" class="ui compact primary icon button" title="Search"><i class="search icon"></i> <span class="displaynone">Search</span></button>
-                    <button type="submit" class="ui compact icon button" name="reset_filters" title="Reset"><i class="times icon"></i> <span class="displaynone">Reset</span></button>
-                </div>
+<main class="ui wide container">
+    <div class="ui basic segment">
+        <div class="ui center aligned info message">
+            <div class="header">
+                {% if filters.count is defined and filters.count != total %}
+                    {{ filters.count }} on {{ total }} registered Galette installations
+                {% else %}
+                    {{ total }} registered Galette installations
+                {% endif %}
             </div>
         </div>
-        {% include "partials/csrf.html.twig" %}
-    </form>
 
-    <table class="ui celled selectable striped table">
-        <thead>
-        <tr>
-            <th>
-                {% if orderby == 'name' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ url_for('orderReferences', {'field': 'name'}) }}">Name</a>
-            </th>
-            <th>
-                {% if orderby == 'country' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ url_for('orderReferences', {'field': 'country'}) }}">Country</a>
-            </th>
-            <th>
-                {% if orderby == 'num_members' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ url_for('orderReferences', {'field': 'num_members'}) }}">Members</a>
-            </th>
-            <th>
-                {% if orderby == 'updated_at' %}<i class="ui icon sort {{ sort == 'asc' ? 'up' : 'down' }}"></i>{% endif %}
-                <a href="{{ url_for('orderReferences', {'field': 'updated_at'}) }}">Registration date</a>
-            </th>
-            <th>
-                Comment
-            </th>
-        </tr></thead>
-        <tbody>
-        {% for reference in references %}
-            <tr>
-                <td class="single line">
-                    {% if reference.url %}
-                        {% if reference.url matches '/^https?:\\/\\//' %}
-                            {% set ref_url = reference.url %}
-                        {% else %}
-                            {% set ref_url = 'https://' ~ reference.url %}
-                        {% endif %}
-                        <a href="{{ ref_url }}" target="_blank">{{ reference.name }}</a>
-                    {% else %}
-                        {{ reference.name }}
-                    {% endif %}
-                </td>
-                <td class="fitted single line">
-                    <i class="{{ reference.country|lower }} flag"></i>{{ countries_names[reference.country] }}
-                </td>
-                <td class="right aligned">{{ reference.num_members }}</td>
-                <td>{{ reference.updated_at|date("Y-m-d") }}</td>
-                <td class="ellipsis tooltip" title="{{ reference.comment }}">
-                    {{ reference.comment }}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        {% if references.hasPages() %}
-        <tfoot>
-            <tr>
-                <th colspan="5">
-                    {% set nearby_pages_limit = 5 %}
-                    {% set current = references.currentPage() %}
-                    <div class="ui right floated pagination menu">
-                        {% for i in 1..references.lastPage() %}
-                            {% if 0 == (current - nearby_pages_limit) - loop.index %}
-                                <a class="icon item" href="{{ references.url(1) }}">
-                                    <i class="fast backward icon tooltip" title="First page"></i>
-                                </a>
-                                {% if 1 != loop.index %}
-                                    <a href="javascript:void(0)" class="item">...</a>
-                                {% endif %}
-                            {% elseif 0 == (current + nearby_pages_limit) - loop.index and (current + nearby_pages_limit) < references.lastPage() %}
-                                <a href="javascript:void(0)" class="item">...</a>
-                            {% elseif 0 < (current - nearby_pages_limit) - loop.index %}
-                            {% elseif 0 > (current + nearby_pages_limit) - loop.index %}
-                            {% else %}
-                                <a href="{{ references.url(loop.index) }}" class="item{{ current == loop.index ? ' active' }}">{{ loop.index }}</a>
-                            {% endif %}
-                        {% endfor %}
-                        {% if current != references.lastPage() and (current + nearby_pages_limit) < references.lastPage() %}
-                            <a href="{{ references.url(references.lastPage()) }}" class="icon item">
-                                <i class="fast forward icon tooltip" title="Last page ({{ references.lastPage() }})"></i>
-                            </a>
-                        {% endif %}
+        <form id="filter_references" action="{{ url_for('filterReferences') }}" method="POST">
+            <div class="ui form">
+                <div class="fields">
+                    <div class="six wide field">
+                        <input name="filter_name" id="filter_name" type="text" class="form-control form-control-sm" placeholder="Name" value="{{ filters.name|default('') }}">
                     </div>
-                </th>
-            </tr>
-        </tfoot>
+                    <div class="six wide field">
+                        <div class="ui fluid search clearable selection dropdown">
+                            <input type="hidden" name="filter_country" value="{{ filters.country ?? '' }}">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select Country</div>
+                            <div class="menu">
+                                {% for country in countries %}
+                                    {% if country.cca2|lower in ref_countries %}
+                                        <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="four wide field">
+                        <button type="submit" class="ui primary icon labeled button" title="Search"><i class="search icon"></i> Search</button>
+                        <button type="submit" class="ui icon labeled button" name="reset_filters" title="Reset"><i class="times icon"></i> Reset</button>
+                    </div>
+                </div>
+            </div>
+            {% include "partials/csrf.html.twig" %}
+        </form>
+
+        <table class="ui sortable celled striped table">
+            <thead>
+                <tr>
+                    <th class="single line{% if orderby == 'name' %} sorted {{ sort == 'asc' ? 'ascending' : 'descending' }}{% endif %}">
+                        <a href="{{ url_for('orderReferences', {'field': 'name'}) }}">Name</a>
+                    </th>
+                    <th class="single line{% if orderby == 'country' %} sorted {{ sort == 'asc' ? 'ascending' : 'descending' }}{% endif %}">
+                        <a href="{{ url_for('orderReferences', {'field': 'country'}) }}">Country</a>
+                    </th>
+                    <th class="single line{% if orderby == 'num_members' %} sorted {{ sort == 'asc' ? 'ascending' : 'descending' }}{% endif %}">
+                        <a href="{{ url_for('orderReferences', {'field': 'num_members'}) }}">Members</a>
+                    </th>
+                    <th class="single line{% if orderby == 'updated_at' %} sorted {{ sort == 'asc' ? 'ascending' : 'descending' }}{% endif %}">
+                        <a href="{{ url_for('orderReferences', {'field': 'updated_at'}) }}">Registration date</a>
+                    </th>
+                    <th class="single line">
+                        Comment
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reference in references %}
+                <tr>
+                    <td data-col-label="Name">
+                        {% if reference.url %}
+                            {% if reference.url matches '/^https?:\\/\\//' %}
+                                {% set ref_url = reference.url %}
+                            {% else %}
+                                {% set ref_url = 'https://' ~ reference.url %}
+                            {% endif %}
+                            <a href="{{ ref_url }}" target="_blank">{{ reference.name }}</a>
+                        {% else %}
+                            {{ reference.name }}
+                        {% endif %}
+                    </td>
+                    <td class="collapsing" data-col-label="Country">
+                        <i class="{{ reference.country|lower }} flag"></i>{{ countries_names[reference.country] }}
+                    </td>
+                    <td class="collapsing right aligned" data-col-label="Members">{{ reference.num_members }}</td>
+                    <td class="collapsing" data-col-label="Registration date">{{ reference.updated_at|date("Y-m-d") }}</td>
+                    <td class="ellipsis tooltip" title="{{ reference.comment }}" data-col-label="Comment">
+                        {{ reference.comment }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if references.hasPages() %}
+        <div class="basic fitted segment">
+            {% set nearby_pages_limit = 5 %}
+            {% set current = references.currentPage() %}
+            <div class="ui pagination wrapping fluid menu">
+                {% for i in 1..references.lastPage() %}
+                    {% if 0 == (current - nearby_pages_limit) - loop.index %}
+                        <a class="icon item" href="{{ references.url(1) }}">
+                            <i class="fast backward icon tooltip" title="First page"></i>
+                        </a>
+                        {% if 1 != loop.index %}
+                            <a href="javascript:void(0)" class="item">...</a>
+                        {% endif %}
+                    {% elseif 0 == (current + nearby_pages_limit) - loop.index and (current + nearby_pages_limit) < references.lastPage() %}
+                        <a href="javascript:void(0)" class="item">...</a>
+                    {% elseif 0 < (current - nearby_pages_limit) - loop.index %}
+                    {% elseif 0 > (current + nearby_pages_limit) - loop.index %}
+                    {% else %}
+                        <a href="{{ references.url(loop.index) }}" class="item{{ current == loop.index ? ' active' }}">{{ loop.index }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if current != references.lastPage() and (current + nearby_pages_limit) < references.lastPage() %}
+                    <a href="{{ references.url(references.lastPage()) }}" class="icon item">
+                        <i class="fast forward icon tooltip" title="Last page ({{ references.lastPage() }})"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
         {% endif %}
-    </table>
 
-    <div class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">Register your own instance</div>
-        <div class="ui form content">
-            <form method="POST" id="new_reference" action="{{ url_for('registerReference') }}">
-                <div class="field">
-                   <label for="name">Name (company name)</label>
-                   <input type="text" required="required"  name="name" id="name" placeholder="Your (company) name" />
-               </div>
+        <div class="ui modal">
+            <i class="close icon"></i>
+            <div class="header">Register your own instance</div>
+            <div class="ui form content">
+                <form method="POST" id="new_reference" action="{{ url_for('registerReference') }}">
+                    <div class="field">
+                       <label for="name">Name (company name)</label>
+                       <input type="text" required="required"  name="name" id="name" placeholder="Your (company) name" />
+                   </div>
 
-               <div class="field">
-                   <label for="url">URL</label>
-                   <input type="url"  name="url" id="url" placeholder="URL" />
-               </div>
+                   <div class="required field">
+                       <label for="url">URL</label>
+                       <input type="url"  name="url" id="url" placeholder="URL" />
+                   </div>
 
-               <div class="field">
-                   <label for="countries_select">Country</label>
-                   <div class="ui fluid search clearable selection dropdown">
-                       <input type="hidden" name="country">
-                       <i class="dropdown icon"></i>
-                       <div class="default text">Select Country</div>
-                       <div class="menu">
-                           {% for country in countries %}
-                               <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
-                           {% endfor %}
+                   <div class="field">
+                       <label for="countries_select">Country</label>
+                       <div class="ui fluid search clearable selection dropdown">
+                           <input type="hidden" name="country">
+                           <i class="dropdown icon"></i>
+                           <div class="default text">Select Country</div>
+                           <div class="menu">
+                               {% for country in countries %}
+                                   <div class="item" data-value="{{ country.cca2 }}"><i class="{{ country.cca2|lower }} flag"></i>{{ country.name.common }}</div>
+                               {% endfor %}
+                           </div>
                        </div>
                    </div>
-               </div>
 
-               <div class="field">
-                   <label for="phone">Phone</label>
-                   <input type="text" name="phone" id="phone"  placeholder="Phone">
-               </div>
+                   <div class="field">
+                       <label for="phone">Phone</label>
+                       <input type="text" name="phone" id="phone"  placeholder="Phone">
+                   </div>
 
-               <div class="field">
-                   <label for="email">Email</label>
-                   <input type="email" name="email" id="email" placeholder="Email">
-               </div>
+                   <div class="field">
+                       <label for="email">Email</label>
+                       <input type="email" name="email" id="email" placeholder="Email">
+                   </div>
 
-               <div class="field">
-                   <label for="referent">Referent name</label>
-                   <input type="text" name="referent" id="referent" placeholder="Referent name">
-               </div>
+                   <div class="field">
+                       <label for="referent">Referent name</label>
+                       <input type="text" name="referent" id="referent" placeholder="Referent name">
+                   </div>
 
-                <div class="field">
-                    <label for="num_members">Number of members</label>
-                    <input type="number" name="num_members" id="num_members" placeholder="Number of members" min="0" />
-                </div>
+                    <div class="field">
+                        <label for="num_members">Number of members</label>
+                        <input type="number" name="num_members" id="num_members" placeholder="Number of members" min="0" />
+                    </div>
 
-               <div class="field">
-                   <label for="comment">Comment</label>
-                   <textarea name="comment" id="comment" rows="3" placeholder="Your message"></textarea>
-               </div>
+                   <div class="field">
+                       <label for="comment">Comment</label>
+                       <textarea name="comment" id="comment" rows="3" placeholder="Your message"></textarea>
+                   </div>
 
-                <div class="field">
-                    <label for="gaptcha" title="">Captcha</label>
-                    <p><span class="ui medium red text">{{ gaptcha.generateQuestion() }} (numbers only)</span></p>
-                    <input type="gaptcha" name="gaptcha" id="gaptcha" value="" required="required" class="required" autocomplete="1">
-                </div>
+                    <div class="required field">
+                        <label for="gaptcha" title="">Captcha</label>
+                        <p><span class="ui medium red text">{{ gaptcha.generateQuestion() }} (numbers only)</span></p>
+                        <input type="gaptcha" name="gaptcha" id="gaptcha" value="" required="required" class="required" autocomplete="1">
+                    </div>
 
-                <input type="hidden" name="uuid" value="{{ uuid }}" />
-                {% include "partials/csrf.html.twig" %}
-            </form>
-        </div>
-        <div class="actions">
-            <button type="button" class="ui button  right labeled icon deny">
-                Cancel
-                <i class="times icon"></i>
-            </button>
-            <button type="submit" class="ui positive right labeled icon button">
-                Register
-                <i class="checkmark icon"></i>
-            </button>
+                    <input type="hidden" name="uuid" value="{{ uuid }}" />
+                    {% include "partials/csrf.html.twig" %}
+                </form>
+            </div>
+            <div class="actions">
+                <button type="button" class="ui button  right labeled icon deny">
+                    Cancel
+                    <i class="times icon"></i>
+                </button>
+                <button type="submit" class="ui positive right labeled icon button">
+                    Register
+                    <i class="checkmark icon"></i>
+                </button>
+            </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block userscripts %}

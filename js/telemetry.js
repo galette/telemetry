@@ -51,6 +51,7 @@ var plotly_bar_layout = {
 
 var plotly_config = {
     displayModeBar: false,
+    responsive: true
 };
 
 var plotlyData = function(raw_data) {
@@ -228,8 +229,9 @@ $(document).ready(function() {
     // masonry on dashboard
     $('.dashboard').masonry({
         itemSelector: '.chart',
-        columnWidth: 350,
-        fitWidth: true
+        columnWidth: '.chart-sizer',
+        percentPosition: true,
+        gutter: 10,
     });
 
    // permits to expand chart cards
@@ -244,10 +246,10 @@ $(document).ready(function() {
       if (!chart.hasClass('chart-max')) {
          chart
             .toggleClass("chart-max")
-            .width($(window).width() * .8)
-            .height('80vh')
+            .width($('.dashboard').width() * .97)
+            .height($(window).height() * .8)
             .find(".card-block:not(.description)")
-               .height('calc(80vh - 78px)');
+               .height($(window).height() * .8 - 41.4);
       } else {
          // disable full screen
          chart
