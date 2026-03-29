@@ -145,7 +145,6 @@
                                         "max_execution_time",
                                         "upload_max_filesize",
                                         "session",
-                                        "safe_mode",
                                         "post_max_size"
                                     ],
                                     "type": "object"
