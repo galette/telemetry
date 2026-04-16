@@ -15,7 +15,7 @@
 
 /* Hovered Item */
 @hoverItemBackground: @primaryColor;
-@hoverItemTextColor: darken(@textColor, 15);
+@hoverItemTextColor: @darkGrey;
 
 /* Pressed Item */
 @pressedItemBackground: @primaryColor;
@@ -24,11 +24,11 @@
 
 /* Active Item */
 @activeItemBackground: @lightPrimaryColor;
-@activeItemTextColor: darken(@textColor, 15);
+@activeItemTextColor: @hoverItemTextColor;
 @activeItemFontWeight: @bold;
 @activeIconOpacity: 1;
 @activeItemBoxShadow: none;
 
 /* Active Hovered Item */
 @activeHoverItemBackground: @lightPrimaryColor;
-@activeHoverItemColor: darken(@textColor, 15);
+@activeHoverItemColor: @hoverItemTextColor;
