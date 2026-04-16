@@ -9,15 +9,31 @@
 .ui.striped:not(.basic).table > tbody > tr,
 .ui.striped:not(.basic).table > tr {
     background-color: @evenLineBackgroundColor;
+
+    td a {
+        color: darken(@linkColor, 5);
+    }
 }
 
 .ui.striped:not(.basic).table > tbody > tr:nth-child(2n),
 .ui.striped:not(.basic).table > tr:nth-child(2n) {
     background-color: @oddLineBackgroundColor;
+
+    td a {
+        color: darken(@linkColor, 5);
+    }
 }
 
 table tbody tr:hover > td {
     background-color: @activeLineBackgroundColor !important;
+
+    a {
+        color: darken(@linkColor, 5);
+    }
+}
+
+.ui.sortable.table thead th.sorted a {
+    color: darken(@linkColor, 5);
 }
 
 @media only screen and (max-width: @largestMobileScreen) {

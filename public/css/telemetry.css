@@ -117,8 +117,8 @@
 
 #chart-nb_reference_entries,
 #chart-nb_reference_entries .card-header {
-   background-color: #E9B59F;
-   color: #C24A19;
+   background-color: #fdc9b4;
+   color: #9d370d;;
 }
 
 #chart-top_plugins {
@@ -127,7 +127,7 @@
 #chart-top_plugins .header,
 #chart-top_plugins .header i {
    background-color: #56ABB9;
-   color: #FFF;
+   color: #041f22;
 }
 
 #chart-os_family,

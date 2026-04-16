@@ -13,37 +13,29 @@ return $config = [
                 'icon' => 'book',
                 'url' => 'https://doc.galette.eu'
             ],
-            'Forums' => [
-                'icon' => 'comments',
-                'url' => 'https://forums.galette.eu'
-            ],
             'Contact' => [
                 'icon' => 'pencil',
                 'url' => 'http://galette.eu/site/contact'
             ]
         ],
         'social_links' => [
-            'Galette source code' => [
+            'Source code' => [
                 'icon' => 'github',
                 'url' => 'https://github.com/galette'
             ],
-            'Mastodon @galette@framapiaf.org' => [
+            'Mastodon' => [
                 'icon' => 'mastodon',
                 'url' => 'https://framapiaf.org/@galette'
             ],
-            'Twitter @galette_soft' => [
-                'icon' => 'twitter',
-                'url' => 'https://twitter.com/galette_soft'
+            'RSS feed' => [
+                'icon' => 'rss',
+                'url' => 'https://galette.eu/site/feed.xml'
             ],
-            'Galette on Facebook' => [
-                'icon' => 'facebook',
-                'url' => 'https://www.facebook.com/galettesoft'
+            'Matrix' => [
+                'icon' => 'matrix',
+                'url' => 'https://matrix.to/#/%23galette:matrix.org'
             ],
-            'Galette Reddit' => [
-                'icon' => 'reddit',
-                'url' => 'https://www.reddit.com/r/galette'
-            ],
-            'Galette Discord' => [
+            'Discord' => [
                 'icon' => 'discord',
                 'url' => 'https://discord.gg/98g2e3xka8'
             ]

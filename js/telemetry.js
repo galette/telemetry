@@ -58,9 +58,6 @@ var plotlyData = function(raw_data) {
     $.each(raw_data, function(index, current) {
         current.textinfo  = 'label';
         current.hoverinfo = 'label+value';
-        current.insidetextfont = {
-        color: "#FEFEFE"
-        };
         if (typeof current.marker == "undefined") {
         current.marker    = {};
         }
@@ -108,7 +105,17 @@ var pluginsExpanded = function(chart_id, chart) {
                             plotly_bar_layout, {
                                 paper_bgcolor: '#529AA5',
                                 plot_bgcolor: '#529AA5',
-                                showlegend: false
+                                showlegend: false,
+                                xaxis: {
+                                    tickfont: {
+                                        color: '#041f22'
+                                    }
+                                },
+                                yaxis: {
+                                    tickfont: {
+                                        color: '#041f22'
+                                    }
+                                }
                             }
                         ),
                         plotly_config
@@ -177,7 +184,17 @@ $(document).ready(function() {
                 plotly_bar_layout, {
                     paper_bgcolor: '#529AA5',
                     plot_bgcolor: '#529AA5',
-                    showlegend: false
+                    showlegend: false,
+                    xaxis: {
+                        tickfont: {
+                            color: '#041f22'
+                        }
+                    },
+                    yaxis: {
+                        tickfont: {
+                            color: '#041f22'
+                        }
+                    }
                 }
             ),
             plotly_config
