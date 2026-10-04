@@ -17,31 +17,28 @@
   "license": "MIT",
   "dependencies": {
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
-    "bootstrap": "^5.3.2",
-    "fomantic-ui": "^2.9.3",
     "jquery": "^3.7.1",
-    "js-cookie": "^3.0.5",
+    "js-cookie": "^3.0.8",
     "leaflet": "^1.9.4",
     "leaflet-gesture-handling": "^1.2.2",
     "leaflet-spin": "^1.1.2",
-    "leaflet.fullscreen": "^3.0.0",
+    "leaflet.fullscreen": "^5.3.3",
     "maplibre-gl": "^6.12.0",
     "masonry-layout": "^4.2.2",
-    "merge-stream": "^2.0.0",
-    "plotly.js-dist": "^2.27.0",
-    "twemoji-emojis": "^14.1.0"
+    "plotly.js-dist": "^4.1.1"
   },
   "devDependencies": {
-    "browser-sync": "^2.29.3",
+    "browser-sync": "^3.0.4",
     "clean-css": "^5.3.3",
     "darkreader": "^4.9.133",
-    "del": "^6.1.1",
     "esbuild": "^0.28.2",
-    "gulp": "^4.0.2",
+    "fomantic-ui": "^2.9.4",
+    "gulp": "^5.0.1",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-replace": "^1.1.4",
     "gulp-uglify": "^3.0.2",
-    "playwright-core": "^1.63.0"
+    "merge-stream": "^2.0.0",
+    "playwright-core": "^1.63.0",
+    "twemoji-emojis": "^14.1.0"
   }
 }

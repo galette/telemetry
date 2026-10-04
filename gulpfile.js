@@ -9,12 +9,11 @@ const localServer = {
 }
 
 var gulp = require('gulp'),
-  del = require('del'),
+  fs = require('fs'),
   uglify = require('gulp-uglify'),
   cleanCSS = require('gulp-clean-css'),
   merge = require('merge-stream'),
   concat = require('gulp-concat'),
-  replace = require('gulp-replace'),
   esbuild = require('esbuild'),
   browserSync = require('browser-sync').create()
   build = require('./semantic/tasks/build'),
@@ -69,7 +68,7 @@ var paths = {
     ],
     leaflet: [
       './node_modules/leaflet/dist/leaflet.js',
-      './node_modules/leaflet.fullscreen/Control.FullScreen.js',
+      './node_modules/leaflet.fullscreen/dist/Control.FullScreen.umd.js',
       './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js',
       './node_modules/spin.js/spin.js',
       './node_modules/leaflet-spin/leaflet.spin.js'
@@ -90,7 +89,7 @@ var paths = {
   styles: {
     leaflet: [
       './node_modules/leaflet/dist/leaflet.css',
-      './node_modules/leaflet.fullscreen/Control.FullScreen.css',
+      './node_modules/leaflet.fullscreen/dist/Control.FullScreen.css',
       './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.css',
       './node_modules/maplibre-gl/dist/maplibre-gl.css'
     ]
@@ -104,12 +103,6 @@ var paths = {
       ],
       dest: 'js/'
     },
-    {
-      src: [
-        './node_modules/leaflet.fullscreen/icon-fullscreen.svg'
-      ],
-      dest: 'images/'
-    }
   ]
 };
 
@@ -118,11 +111,11 @@ function theme() {
     .pipe(gulp.dest(paths.semantic.src))
     .pipe(browserSync.stream());
 
-  theme =  gulp.src(paths.src.files)
+  theme =  gulp.src(paths.src.files, { encoding: false })
     .pipe(gulp.dest(paths.semantic.theme))
     .pipe(browserSync.stream());
 
-  emojis = gulp.src(paths.src.emojis)
+  emojis = gulp.src(paths.src.emojis, { encoding: false })
     .pipe(gulp.dest(paths.semantic.theme + 'assets/emojis'))
     .pipe(browserSync.stream());
 
@@ -130,15 +123,14 @@ function theme() {
 }
 
 function clean() {
-  return del([
+  return Promise.all([
     paths.assets.public,
     paths.assets.theme.public,
-  ]);
+  ].map(path => fs.promises.rm(path, { recursive: true, force: true })));
 }
 
 function styles() {
   leaflet = gulp.src(paths.styles.leaflet)
-    .pipe(replace('icon-fullscreen.svg', '../images/icon-fullscreen.svg'))
     .pipe(cleanCSS())
     .pipe(concat('leaflet.bundle.min.css'))
     .pipe(gulp.dest(paths.assets.css))
@@ -204,7 +196,7 @@ function gl_scripts() {
 
 function movefiles() {
   extras = paths.extras.map(function (extra) {
-    return gulp.src(extra.src)
+    return gulp.src(extra.src, { encoding: false })
       .pipe(gulp.dest(paths.assets.public + extra.dest))
       .pipe(browserSync.stream());
     }
@@ -222,7 +214,6 @@ function movefiles() {
 async function dark_css() {
   const { chromium } = require('playwright-core');
   const CleanCSS = require('clean-css');
-  const fs = require('fs');
 
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || undefined

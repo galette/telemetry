@@ -19,5 +19,5 @@
   "autoInstall": true,
   "rtl": false,
   "components": ["reset", "site", "button", "container", "header", "icon", "input", "list", "segment", "form", "grid", "menu", "message", "table", "dimmer", "dropdown", "popup", "text", "toast", "modal", "transition", "search", "flag"],
-  "version": "2.9.3"
+  "version": "2.9.4"
 }
