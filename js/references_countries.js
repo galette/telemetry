@@ -13,9 +13,41 @@ $(document).ready(function() {
       [0.0, 0.0],
       2
    );
-   L.tileLayer.provider('CartoDB.Positron', []).addTo(references_map);
+   _addTiles(references_map);
    _loadMapRefs(references_map);
 });
+
+/**
+ * Does the browser render vector tiles? They need WebGL 2
+ */
+var _hasWebGL2 = function() {
+   try {
+      return !!(window.WebGL2RenderingContext && document.createElement('canvas').getContext('webgl2'));
+   } catch (err) {
+      return false;
+   }
+};
+
+/**
+ * Add background map
+ *
+ * OpenFreeMap vector tiles need neither key nor registration (anonymous CARTO
+ * basemaps are now watermarked "API KEY REQUIRED"). Their attribution comes
+ * with the style. Browsers without WebGL 2 get standard OSM raster tiles.
+ */
+var _addTiles = function(references_map) {
+   if (typeof L.maplibreGL !== 'undefined' && _hasWebGL2()) {
+      L.maplibreGL({
+         style: 'https://tiles.openfreemap.org/styles/positron'
+      }).addTo(references_map);
+      return;
+   }
+
+   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
+   }).addTo(references_map);
+};
 
 var _loadMapRefs = function(references_map) {
    //retrieve geojson data

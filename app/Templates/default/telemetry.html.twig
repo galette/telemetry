@@ -166,11 +166,11 @@
 
 <script src="{{ base_path() }}/assets/js/plotly.js"></script>
 <script src="{{ base_path() }}/assets/js/masonry.pkgd.min.js"></script>
-{# Get map provider from configuration #}
 <script type="text/javascript">
     var geojson_path = '{{ url_for('geojson') }}';
 </script>
 <script src="{{ base_path() }}/assets/js/leaflet.bundle.min.js"></script>
+<script src="{{ base_path() }}/assets/js/maplibre-gl.bundle.min.js"></script>
 <script src="{{ base_path() }}/assets/js/telemetry.bundle.min.js"></script>
 
 {% endblock %}

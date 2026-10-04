@@ -15,6 +15,7 @@ var gulp = require('gulp'),
   merge = require('merge-stream'),
   concat = require('gulp-concat'),
   replace = require('gulp-replace'),
+  esbuild = require('esbuild'),
   browserSync = require('browser-sync').create()
   build = require('./semantic/tasks/build'),
   buildJS = require('./semantic/tasks/build/javascript'),
@@ -69,19 +70,31 @@ var paths = {
       './node_modules/leaflet/dist/leaflet.js',
       './node_modules/leaflet.fullscreen/Control.FullScreen.js',
       './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js',
-      './node_modules/leaflet-providers/leaflet-providers.js',
       './node_modules/spin.js/spin.js',
       './node_modules/leaflet-spin/leaflet.spin.js'
     ],
     darkreader: [
       './node_modules/darkreader/darkreader.js'
-    ]
+    ],
+    // maplibre-gl ships ES modules only since 6.x, so its bundle cannot be built
+    // by concatenation like the others: esbuild rolls it up, along with the
+    // Leaflet binding, into a classic script still exposing `maplibregl`.
+    gl: {
+      entry: './js/gl/maplibre-gl.js',
+      // Leaflet comes from leaflet.bundle.min.js, reuse the one on the page
+      aliases: {
+        'leaflet': './js/gl/leaflet-global.js'
+      },
+      // tile parsing runs in a worker fetched at runtime, next to the bundle
+      worker: './node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
+    }
   },
   styles: {
     leaflet: [
       './node_modules/leaflet/dist/leaflet.css',
       './node_modules/leaflet.fullscreen/Control.FullScreen.css',
       './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.css',
+      './node_modules/maplibre-gl/dist/maplibre-gl.css'
     ]
   },
   extras: [
@@ -180,6 +193,27 @@ function scripts() {
   return merge(main, telemetry, leaflet, darkreader);
 }
 
+function gl_scripts() {
+  return Promise.all([
+    esbuild.build({
+      entryPoints: [paths.scripts.gl.entry],
+      outfile: paths.assets.js + 'maplibre-gl.bundle.min.js',
+      bundle: true,
+      minify: true,
+      format: 'iife',
+      globalName: 'maplibregl',
+      alias: paths.scripts.gl.aliases
+    }),
+    esbuild.build({
+      entryPoints: [paths.scripts.gl.worker],
+      outfile: paths.assets.js + 'maplibre-gl.worker.min.js',
+      bundle: true,
+      minify: true,
+      format: 'esm'
+    })
+  ]);
+}
+
 function movefiles() {
   extras = paths.extras.map(function (extra) {
     return gulp.src(extra.src)
@@ -195,7 +229,8 @@ exports.theme = theme;
 exports.clean = clean;
 exports.styles = styles;
 exports.scripts = scripts;
+exports.gl_scripts = gl_scripts;
 exports.movefiles = movefiles;
 
-var build = gulp.series(theme, clean, styles, scripts, movefiles, 'build ui');
+var build = gulp.series(theme, clean, styles, scripts, gl_scripts, movefiles, 'build ui');
 exports.default = build;
