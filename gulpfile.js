@@ -30,6 +30,7 @@ gulp.task('build-assets', buildAssets);
 
 var paths = {
   webroot: './public/',
+  darkcss: './public/css/dark.css',
   assets: {
     public: './public/assets/',
     css: './public/assets/css/',
@@ -72,9 +73,6 @@ var paths = {
       './node_modules/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js',
       './node_modules/spin.js/spin.js',
       './node_modules/leaflet-spin/leaflet.spin.js'
-    ],
-    darkreader: [
-      './node_modules/darkreader/darkreader.js'
     ],
     // maplibre-gl ships ES modules only since 6.x, so its bundle cannot be built
     // by concatenation like the others: esbuild rolls it up, along with the
@@ -180,17 +178,7 @@ function scripts() {
     .pipe(gulp.dest(paths.assets.js))
     .pipe(browserSync.stream());
 
-  darkreader = gulp.src(paths.scripts.darkreader)
-    .pipe(concat('darkreader.min.js'))
-    .pipe(uglify({
-      output: {
-        comments: /^!/
-      }
-    }))
-    .pipe(gulp.dest(paths.assets.js))
-    .pipe(browserSync.stream());
-
-  return merge(main, telemetry, leaflet, darkreader);
+  return merge(main, telemetry, leaflet);
 }
 
 function gl_scripts() {
@@ -225,12 +213,45 @@ function movefiles() {
   return merge(extras);
 }
 
+/*
+ * Generate dark theme stylesheet with DarkReader, from a running instance.
+ * Instance URL defaults to localServer.url, and can be overridden with
+ * TELEMETRY_URL environment variable; a Chromium binary can be set with
+ * CHROMIUM_PATH environment variable.
+ */
+async function dark_css() {
+  const { chromium } = require('playwright-core');
+  const CleanCSS = require('clean-css');
+  const fs = require('fs');
+
+  const browser = await chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || undefined
+  });
+  try {
+    const page = await browser.newPage();
+    await page.goto(process.env.TELEMETRY_URL || localServer.url, { waitUntil: 'networkidle' });
+    await page.addScriptTag({ path: './node_modules/darkreader/darkreader.js' });
+    const css = await page.evaluate(function () {
+      DarkReader.enable({
+        brightness: 100,
+        contrast: 90,
+        sepia: 10
+      });
+      return DarkReader.exportGeneratedCSS();
+    });
+    fs.writeFileSync(paths.darkcss, new CleanCSS().minify(css).styles);
+  } finally {
+    await browser.close();
+  }
+}
+
 exports.theme = theme;
 exports.clean = clean;
 exports.styles = styles;
 exports.scripts = scripts;
 exports.gl_scripts = gl_scripts;
 exports.movefiles = movefiles;
+exports.dark_css = dark_css;
 
 var build = gulp.series(theme, clean, styles, scripts, gl_scripts, movefiles, 'build ui');
 exports.default = build;

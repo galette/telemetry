@@ -115,7 +115,9 @@ var _loadMapRefs = function(references_map) {
          }).addTo(references_map);
          group.addLayer(geojson);
       });
-      references_map.fitBounds(group.getBounds());
+      if (group.getLayers().length > 0) {
+         references_map.fitBounds(group.getBounds());
+      }
    }).fail(function () {
       // add a popup for country hover
       var fail_info = L.control();

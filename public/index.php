@@ -51,15 +51,5 @@ $app->get(
     'GaletteTelemetry\Controllers\Telemetry:allPlugins'
 )->setName('allPlugins');
 
-$app->post(
-    '/write-dark-css',
-    'GaletteTelemetry\Controllers\Telemetry:writeDarkCSS'
-)->setName('writeDarkCSS');
-
-$app->get(
-    '/get-dark-css',
-    'GaletteTelemetry\Controllers\Telemetry:getDarkCSS'
-)->setName('getDarkCSS');
-
 // run slim
 $app->run();

@@ -205,7 +205,6 @@ $container->set(
         $env->addGlobal('mode', TELEMETRY_MODE);
 
         //dark css state
-        $env->addGlobal('darkcss_created', $c->get('darkcss_created'));
         $env->addGlobal('darkcss_enabled', ($_COOKIE['galettetelemetry_dark_mode'] ?? 0) == 1);
 
         return $view;
@@ -257,18 +256,6 @@ $container->set(
         );
 
         return $cache;
-    }
-);
-
-$container->set(
-    'darkcss_created',
-    function ($c) {
-        $cache = $c->get('cache');
-        if ($cache->hasItem('darkcss')) {
-            return true;
-        } else {
-            return false;
-        }
     }
 );
 

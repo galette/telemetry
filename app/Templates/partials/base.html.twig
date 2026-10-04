@@ -7,8 +7,8 @@
 
       <link rel="stylesheet" type="text/css" href="{{ base_path() }}{{ asset('/ui/semantic.min.css') }}" />
 
-      {% if darkcss_created and darkcss_enabled %}
-         <link rel="stylesheet" type="text/css" href="{{ url_for('getDarkCSS') }}">
+      {% if darkcss_enabled %}
+         <link rel="stylesheet" type="text/css" href="{{ base_path() }}{{ asset('/css/dark.css') }}" />
       {% endif %}
 
       <link rel="icon" type="image/png" href="{{ base_path() }}/pics/favicon.png" />
@@ -35,12 +35,12 @@
             </a>
             <a
                href="#"
-               class="item{% if darkcss_created and darkcss_enabled %} black{% endif %} tooltip darkmode"
-               title="{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}"
+               class="item{% if darkcss_enabled %} black{% endif %} tooltip darkmode"
+               title="{% if darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}"
                data-position="bottom center"
             >
                <i class="icon adjust"></i>
-               <span class="visually-hidden">{% if darkcss_created and darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}</span>
+               <span class="visually-hidden">{% if darkcss_enabled %}Disable dark mode{% else %}Enable dark mode{% endif %}</span>
             </a>
          </div>
       </nav>
@@ -90,14 +90,6 @@
       <script src="{{ base_path() }}{{ asset('/assets/js/jquery.min.js') }}"></script>
       <script src="{{ base_path() }}{{ asset('/ui/semantic.min.js') }}"></script>
       <script src="{{ base_path() }}{{ asset('/assets/js/main.bundle.min.js') }}"></script>
-      {% if not darkcss_created %}
-         <script type="text/javascript" src="{{ base_path() }}{{ asset('/assets/js/darkreader.min.js') }}"></script>
-      {% endif %}
-
-      <script>
-         var darkcss_path = '{{ url_for('writeDarkCSS') }}';
-         var writedarkcss = {% if darkcss_created %}false{% else %}true{% endif %};
-      </script>
       {% block userscripts %}{% endblock %}
     </body>
 </html>
