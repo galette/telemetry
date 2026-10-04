@@ -211,10 +211,6 @@
 {% block userscripts %}
 {{ parent() }}
 
-{% if mode != 'DEV' %}
-<script src='https://www.google.com/recaptcha/api.js'></script>
-{% endif %}
-
 <script type="text/javascript">
 $(document).ready(function() {
     $('.ui.dropdown')

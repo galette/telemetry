@@ -49,6 +49,7 @@ return $config = [
         ]
     ],
    'baseurl' => 'https://telemetry.galette.eu',
+   'debug' => false,
    'db' => [
       'driver'    => "pgsql",
       'host'      => "localhost",
@@ -58,10 +59,6 @@ return $config = [
       'charset'   => 'utf8',
       'collation' => 'utf8_unicode_ci',
       'prefix'    => ''
-   ],
-   'recaptcha' => [
-      'sitekey'   => '',
-      'secret'    => ''
    ],
    'mail_admin' => '',
    'mail_from' => 'telemetry+noreply@galette.eu'

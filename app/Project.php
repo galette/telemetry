@@ -78,16 +78,16 @@ class Project
             'db_version' => $this->truncate($json['system']['db']['version'], 50),
             'db_size' => (int) $json['system']['db']['size'],
             'db_log_size' => (int) $json['system']['db']['log_size'],
-            'db_sql_mode' => $json['system']['db']['sql_mode'],
+            'db_sql_mode' => $this->truncate($json['system']['db']['sql_mode'], 1000),
             'web_engine' => $this->truncate($json['system']['web_server']['engine'], 50),
             'web_version' => $this->truncate($json['system']['web_server']['version'], 50),
             'php_version' => $this->truncate($json['system']['php']['version'], 50),
-            'php_modules' => implode(',', $json['system']['php']['modules']),
+            'php_modules' => $this->truncate(implode(',', $json['system']['php']['modules']), 5000),
             'php_config_max_execution_time' => (int) $json['system']['php']['setup']['max_execution_time'],
             'php_config_memory_limit' => $this->truncate($json['system']['php']['setup']['memory_limit'], 10),
             'php_config_post_max_size' => $this->truncate($json['system']['php']['setup']['post_max_size'], 10),
             'php_config_safe_mode' => (bool) $json['system']['php']['setup']['safe_mode'],
-            'php_config_session' => $json['system']['php']['setup']['session'],
+            'php_config_session' => $this->truncate($json['system']['php']['setup']['session'], 1000),
             'php_config_upload_max_filesize' => $this->truncate($json['system']['php']['setup']['upload_max_filesize'], 10),
             'os_family' => $this->truncate($json['system']['os']['family'], 50),
             'os_distribution' => $this->truncate($json['system']['os']['distribution'], 50),
@@ -114,10 +114,11 @@ class Project
     public function truncate(string $string, int $length): string
     {
         if (mb_strlen($string) > $length) {
+            $excerpt = mb_substr($string, 0, 100) . '…';
             if ($this->logger !== null) {
-                $this->logger->warning("String exceed length $length", [$string]);
+                $this->logger->warning("String exceed length $length", [$excerpt]);
             } else {
-                trigger_error("String exceed length $length\n$string", E_USER_NOTICE);
+                trigger_error("String exceed length $length\n$excerpt", E_USER_NOTICE);
             }
             $string = mb_substr($string, 0, $length);
         }

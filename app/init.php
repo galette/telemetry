@@ -8,15 +8,19 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Illuminate\Pagination\Paginator;
-use Geggleto\Service\Captcha;
 use Psr\Container\ContainerInterface;
-use ReCaptcha\ReCaptcha;
 use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extension\DebugExtension;
 
 // Start PHP session
+session_set_cookie_params([
+    'httponly' => true,
+    'samesite' => 'Lax',
+    'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+]);
 session_start();
 
 // include user configuration
@@ -24,6 +28,7 @@ $config = require __DIR__ .  '/../config.inc.php';
 if (file_exists(__DIR__ . '/../local.config.inc.php')) {
     require_once __DIR__ . '/../local.config.inc.php';
 }
+$config['debug'] = (bool)($config['debug'] ?? false);
 
 if (!defined('TELEMETRY_MODE')) {
     define('TELEMETRY_MODE', ($config['debug'] === true ? 'DEV' : 'PROD'));
@@ -185,9 +190,6 @@ $container->set(
         // add some global to view
         $env = $view->getEnvironment();
 
-        // add recaptcha sitekey
-        $env->addGlobal('recaptchasitekey', $config['recaptcha']['sitekey']);
-
         $env->addGlobal('flash', $c->get('flash'));
 
         // add countries geo data
@@ -210,7 +212,7 @@ $container->set(
     }
 );
 
-$app->addErrorMiddleware(true, true, true);
+$app->addErrorMiddleware($config['debug'], true, true);
 
 $container->set(
     'data_dir',
@@ -283,8 +285,6 @@ Paginator::currentPathResolver(function () {
     return isset($_SERVER['REQUEST_URI']) ? strtok($_SERVER['REQUEST_URI'], '?') : '/';
 });
 
-// Add Routing Middleware
-$app->addRoutingMiddleware();
 $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 
 //trailing slash middleware

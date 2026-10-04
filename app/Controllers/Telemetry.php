@@ -1,5 +1,6 @@
 <?php namespace GaletteTelemetry\Controllers;
 
+use DateTimeImmutable;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\SchemaStorage;
@@ -18,11 +19,8 @@ class Telemetry extends ControllerAbstract
 
     public function view(Request $request, Response $response): Response
     {
-        $get   = $request->getQueryParams();
-        $years = 99;
-        if (isset($get['years']) && $get['years'] != -1) {
-            $years = $get['years'];
-        }
+        $years = $this->getYears($request);
+        $since = $this->getSinceDate($years);
 
         $dashboard = [];
 
@@ -30,7 +28,7 @@ class Telemetry extends ControllerAbstract
         $raw_nb_tel_entries = TelemetryModel::query()->where(
             'created_at',
             '>=',
-            DB::raw("NOW() - INTERVAL '$years YEAR'")
+            $since
         )->count(DB::raw('DISTINCT instance_uuid'));
         $nb_tel_entries = [
             'raw' => $raw_nb_tel_entries,
@@ -43,7 +41,7 @@ class Telemetry extends ControllerAbstract
             ->where(
                 'updated_at',
                 '>=',
-                DB::raw("NOW() - INTERVAL '$years YEAR'")
+                $since
             )
             ->where(
                 'is_displayed',
@@ -62,7 +60,7 @@ class Telemetry extends ControllerAbstract
             DB::raw("split_part(php_version, '.', 1) || '.' || split_part(php_version, '.', 2) as version,
                     count(DISTINCT(instance_uuid)) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->groupBy(DB::raw("version"))
             ->orderBy(DB::raw("version"), 'asc')
             ->get()
@@ -85,29 +83,35 @@ class Telemetry extends ControllerAbstract
         $references_countries = ReferenceModel::query()->select(
             DB::raw("country as cca2, count(*) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->where('is_displayed', '=', true)
             ->groupBy(DB::raw("country"))
             ->orderBy('total', 'desc')
             ->get()
             ->toArray();
         $all_cca2 = array_column($container_countries, 'cca2');
-        foreach ($references_countries as &$ctry) {
-        //replace alpha2 by alpha3 codes
+        $references_countries_codes = [];
+        foreach ($references_countries as $ctry) {
+            //replace alpha2 by alpha3 codes
             $cca2 = strtoupper($ctry['cca2']);
             $idx  = array_search($cca2, $all_cca2);
-            $ctry['cca3'] = strtolower($container_countries[$idx]['cca3']);
-            $ctry['name'] = $container_countries[$idx]['name']['common'];
-            unset($ctry['cca2']);
+            if ($idx === false) {
+                continue;
+            }
+            $references_countries_codes[] = [
+                'total' => $ctry['total'],
+                'cca3'  => strtolower($container_countries[$idx]['cca3']),
+                'name'  => $container_countries[$idx]['name']['common']
+            ];
         }
-        $dashboard['references_countries'] = json_encode($references_countries);
+        $dashboard['references_countries'] = json_encode($references_countries_codes);
 
         // retrieve galette versions
         $galette_versions = TelemetryModel::query()->select(
             DB::raw("TRIM(trailing '-dev' FROM galette_version) as version,
                     count(DISTINCT(instance_uuid)) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->groupBy('version')
             ->get()
             ->toArray();
@@ -130,7 +134,7 @@ class Telemetry extends ControllerAbstract
             ->where(
                 'plugins_telemetry.created_at',
                 '>=',
-                DB::raw("NOW() - INTERVAL '$years YEAR'")
+                $since
             )
             ->orderBy('total', 'desc')
             ->limit(5)
@@ -148,7 +152,7 @@ class Telemetry extends ControllerAbstract
         $os_family = TelemetryModel::query()->select(
             DB::raw("os_family, count(DISTINCT(instance_uuid)) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->groupBy(DB::raw("os_family"))
             ->get()
             ->toArray();
@@ -164,7 +168,7 @@ class Telemetry extends ControllerAbstract
         $languages = TelemetryModel::query()->select(
             DB::raw("instance_default_language, count(DISTINCT(instance_uuid)) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->groupBy(DB::raw("instance_default_language"))
             ->get()
             ->toArray();
@@ -186,7 +190,7 @@ class Telemetry extends ControllerAbstract
                     END as reduced_db_engine,
                     count(DISTINCT(instance_uuid)) as total")
         )
-            ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
+            ->where('created_at', '>=', $since)
             ->groupBy('reduced_db_engine')
             ->get()
             ->toArray();
@@ -203,7 +207,7 @@ class Telemetry extends ControllerAbstract
             DB::raw("web_engine, count(DISTINCT(instance_uuid)) as total")
         )
         ->where([
-            ['created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'")],
+            ['created_at', '>=', $since],
             ['web_engine', '<>', '']
         ])
             ->groupBy(DB::raw("web_engine"))
@@ -293,12 +297,12 @@ class Telemetry extends ControllerAbstract
         // manage plugins
         foreach ($json[$project->getSlug()]['plugins'] as $plugin) {
             /** @var PluginModel $plugin_m */
-            $plugin_m = PluginModel::query()->firstOrCreate(['name' => $plugin['key']]);
+            $plugin_m = PluginModel::query()->firstOrCreate(['name' => $project->truncate($plugin['key'], 50)]);
 
             PluginTelemetry::query()->create([
                 'telemetry_entry_id' => $telemetry_m->id,
-                'plugin_id'     => $plugin_m->id,
-                'version'            => $plugin['version']
+                'plugin_id'          => $plugin_m->id,
+                'version'            => $project->truncate($plugin['version'], 50)
             ]);
         }
 
@@ -326,10 +330,13 @@ class Telemetry extends ControllerAbstract
                 ->toArray();
             $all_cca2 = array_column($container_countries, 'cca2');
             $db_countries = [];
-            foreach ($references_countries as &$ctry) {
+            foreach ($references_countries as $ctry) {
                 //replace alpha2 by alpha3 codes
                 $cca2 = strtoupper($ctry['cca2']);
                 $idx  = array_search($cca2, $all_cca2);
+                if ($idx === false) {
+                    continue;
+                }
                 $cca3 = strtolower($container_countries[$idx]['cca3']);
                 $db_countries[] = $cca3;
             }
@@ -362,11 +369,7 @@ class Telemetry extends ControllerAbstract
 
     public function allPlugins(Request $request, Response $response): Response
     {
-        $years = 99;
-        $get   = $request->getQueryParams();
-        if (isset($get['years']) && $get['years'] != -1) {
-            $years = $get['years'];
-        }
+        $since = $this->getSinceDate($this->getYears($request));
 
         $top_plugins = PluginModel::query()->join(
             'plugins_telemetry',
@@ -378,7 +381,7 @@ class Telemetry extends ControllerAbstract
             ->where(
                 'plugins_telemetry.created_at',
                 '>=',
-                DB::raw("NOW() - INTERVAL '$years YEAR'")
+                $since
             )
             ->orderBy('total', 'desc')
             ->groupBy(DB::raw("plugins.name"))
@@ -422,5 +425,33 @@ class Telemetry extends ControllerAbstract
         }
 
         return $response;
+    }
+
+    /**
+     * Get requested number of years from query parameters
+     *
+     * @param Request $request Request instance
+     *
+     * @return int Number of years, between 1 and 99 (99 meaning "always")
+     */
+    private function getYears(Request $request): int
+    {
+        $years = (int)($request->getQueryParams()['years'] ?? -1);
+        if ($years < 1 || $years > 99) {
+            $years = 99;
+        }
+        return $years;
+    }
+
+    /**
+     * Get the date from which data are displayed
+     *
+     * @param int $years Number of years
+     *
+     * @return DateTimeImmutable
+     */
+    private function getSinceDate(int $years): DateTimeImmutable
+    {
+        return new DateTimeImmutable(sprintf('-%d years', $years));
     }
 }
