@@ -41,7 +41,8 @@
         "psr/container": "^2.0",
         "ext-mbstring": "*",
         "ext-session": "*",
-        "ext-pdo_pgsql": "*"
+        "ext-pdo_pgsql": "*",
+        "ext-filter": "*"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^4.0",
