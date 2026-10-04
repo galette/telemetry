@@ -28,19 +28,10 @@ class Reference extends ControllerAbstract
         $order_sort  = $_SESSION['reference']['sort'];
 
         //prepare model and common queries
-        $ref = new ReferenceModel();
-        $model = $ref->newInstance();
+        $model = ReferenceModel::query()->select('reference.*');
         $where = [
             ['is_displayed', '=', true]
         ];
-
-        $model = call_user_func_array(
-            [
-                $model,
-                'select'
-            ],
-            ['reference.*']
-        );
 
         $current_filters = [];
         if (isset($_SESSION['reference']['filters'])) {

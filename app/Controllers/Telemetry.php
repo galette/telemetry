@@ -64,7 +64,7 @@ class Telemetry extends ControllerAbstract
         )
             ->where('created_at', '>=', DB::raw("NOW() - INTERVAL '$years YEAR'"))
             ->groupBy(DB::raw("version"))
-            ->orderBy(DB::raw("version"), 'ASC')
+            ->orderBy(DB::raw("version"), 'asc')
             ->get()
             ->toArray();
 
@@ -374,7 +374,7 @@ class Telemetry extends ControllerAbstract
             '=',
             'plugins_telemetry.plugin_id'
         )
-            ->selectRaw(DB::raw("plugins.name, count(plugins_telemetry.*) as total"))
+            ->selectRaw("plugins.name, count(plugins_telemetry.*) as total")
             ->where(
                 'plugins_telemetry.created_at',
                 '>=',

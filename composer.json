@@ -8,6 +8,9 @@
       "optimize-autoloader": true,
         "allow-plugins": {
             "kylekatarnls/update-helper": true
+        },
+        "platform": {
+            "php": "8.3.0"
         }
    },
    "autoload": {
@@ -17,29 +20,34 @@
     },
     "require": {
         "php": ">=8.3",
-        "ext-pgsql": "*",
         "slim/slim": "^4.12",
         "monolog/monolog": "^3.4",
         "slim/twig-view": "^3.3",
-        "illuminate/database": "^10.0",
-        "illuminate/pagination": "^10.29",
+        "illuminate/database": "^13.0",
+        "illuminate/pagination": "^13.0",
         "mledoze/countries": "^5.0",
         "slim/flash": "^0.4.0",
-        "phpmailer/phpmailer": "^6.8",
+        "phpmailer/phpmailer": "^7.0",
         "slim/csrf": "^1.3",
-        "justinrainbow/json-schema": "^5.2",
-        "robmorgan/phinx": "^0.14.0",
-        "symfony/cache": "^6.3",
+        "justinrainbow/json-schema": "^6.0",
+        "robmorgan/phinx": "^0.16",
+        "symfony/cache": "^7.4",
         "php-di/slim-bridge": "^3.4",
         "slim/psr7": "^1.6",
         "middlewares/trailing-slash": "^2.0",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "twig/twig": "^3.26",
+        "php-di/php-di": "^7.1",
+        "psr/container": "^2.0",
+        "ext-mbstring": "*",
+        "ext-session": "*",
+        "ext-pdo_pgsql": "*"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.7",
-        "maglnet/composer-require-checker": "^4.7",
-        "phpstan/phpstan": "^1.10",
-        "friendsoftwig/twigcs": "dev-main"
+        "squizlabs/php_codesniffer": "^4.0",
+        "phpstan/phpstan": "^2.0",
+        "friendsoftwig/twigcs": "dev-main",
+        "shipmonk/composer-dependency-analyser": "^1.8"
     },
     "scripts": {
         "start": "php -S 0.0.0.0:8080 -t public public/index.php"
