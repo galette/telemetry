@@ -2,9 +2,9 @@
 {% block title %}Telemetry{% endblock %}
 {% block head %}
    {{ parent() }}
-   <link rel="stylesheet" href="{{ base_path() }}/assets/css/leaflet.bundle.min.css" />
-   <link rel="stylesheet" href="{{ base_path() }}/css/chart-palette.css" />
-   <link rel="stylesheet" href="{{ base_path() }}/css/telemetry.css" />
+   <link rel="stylesheet" href="{{ base_path() }}{{ asset('/assets/css/leaflet.bundle.min.css') }}" />
+   <link rel="stylesheet" href="{{ base_path() }}{{ asset('/css/chart-palette.css') }}" />
+   <link rel="stylesheet" href="{{ base_path() }}{{ asset('/css/telemetry.css') }}" />
 {% endblock %}
 
 {% block header %}
@@ -164,13 +164,13 @@
 {% block userscripts %}
 {{ parent() }}
 
-<script src="{{ base_path() }}/assets/js/plotly.js"></script>
-<script src="{{ base_path() }}/assets/js/masonry.pkgd.min.js"></script>
+<script src="{{ base_path() }}{{ asset('/assets/js/plotly.js') }}"></script>
+<script src="{{ base_path() }}{{ asset('/assets/js/masonry.pkgd.min.js') }}"></script>
 <script type="text/javascript">
     var geojson_path = '{{ url_for('geojson') }}';
 </script>
-<script src="{{ base_path() }}/assets/js/leaflet.bundle.min.js"></script>
-<script src="{{ base_path() }}/assets/js/maplibre-gl.bundle.min.js"></script>
-<script src="{{ base_path() }}/assets/js/telemetry.bundle.min.js"></script>
+<script src="{{ base_path() }}{{ asset('/assets/js/leaflet.bundle.min.js') }}"></script>
+<script src="{{ base_path() }}{{ asset('/assets/js/maplibre-gl.bundle.min.js') }}"></script>
+<script src="{{ base_path() }}{{ asset('/assets/js/telemetry.bundle.min.js') }}"></script>
 
 {% endblock %}

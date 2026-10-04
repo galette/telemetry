@@ -5,7 +5,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       <meta http-equiv="Cache-control" content="no-cache" />
 
-      <link rel="stylesheet" type="text/css" href="{{ base_path() }}/ui/semantic.min.css" />
+      <link rel="stylesheet" type="text/css" href="{{ base_path() }}{{ asset('/ui/semantic.min.css') }}" />
 
       {% if darkcss_created and darkcss_enabled %}
          <link rel="stylesheet" type="text/css" href="{{ url_for('getDarkCSS') }}">
@@ -87,11 +87,11 @@
 
       {% include "partials/alerts.html.twig" %}
 
-      <script src="{{ base_path() }}/assets/js/jquery.min.js"></script>
-      <script src="{{ base_path() }}/ui/semantic.min.js"></script>
-      <script src="{{ base_path() }}/assets/js/main.bundle.min.js"></script>
+      <script src="{{ base_path() }}{{ asset('/assets/js/jquery.min.js') }}"></script>
+      <script src="{{ base_path() }}{{ asset('/ui/semantic.min.js') }}"></script>
+      <script src="{{ base_path() }}{{ asset('/assets/js/main.bundle.min.js') }}"></script>
       {% if not darkcss_created %}
-         <script type="text/javascript" src="{{ base_path() }}/assets/js/darkreader.min.js"></script>
+         <script type="text/javascript" src="{{ base_path() }}{{ asset('/assets/js/darkreader.min.js') }}"></script>
       {% endif %}
 
       <script>

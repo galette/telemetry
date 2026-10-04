@@ -1,5 +1,6 @@
 <?php
 
+use GaletteTelemetry\Twig\AssetExtension;
 use GaletteTelemetry\Twig\CsrfExtension;
 use Middlewares\TrailingSlash;
 use Psr\Http\Message\ServerRequestInterface;
@@ -175,6 +176,7 @@ $container->set(
         );
         $view->addExtension(new Slim\Views\TwigExtension($c->get('router'), $uri));*/
         $view->addExtension(new CsrfExtension($c->get('csrf')));
+        $view->addExtension(new AssetExtension(__DIR__ . '/../public'));
 
         if ($config['debug']) {
             $view->addExtension(new DebugExtension());
