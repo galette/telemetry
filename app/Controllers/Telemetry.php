@@ -311,54 +311,45 @@ class Telemetry extends ControllerAbstract
 
     public function geojson(Request $request, Response $response): Response
     {
-        $countries = null;
-
-        $cache = $this->container->get('cache');
-        if ($cache->hasItem('countries')) {
-            $countries = $cache->getItem('countries')->get();
-        }
-
-        if ($countries === null) {
-            $container_countries = $this->container->get('countries');
-            $references_countries = ReferenceModel::query()->select(
-                DB::raw("country as cca2, count(*) as total")
-            )
-                ->where('is_displayed', '=', true)
-                ->groupBy(DB::raw("country"))
-                ->orderBy('total', 'desc')
-                ->get()
-                ->toArray();
-            $all_cca2 = array_column($container_countries, 'cca2');
-            $db_countries = [];
-            foreach ($references_countries as $ctry) {
-                //replace alpha2 by alpha3 codes
-                $cca2 = strtoupper($ctry['cca2']);
-                $idx  = array_search($cca2, $all_cca2);
-                if ($idx === false) {
-                    continue;
-                }
-                $cca3 = strtolower($container_countries[$idx]['cca3']);
-                $db_countries[] = $cca3;
+        $container_countries = $this->container->get('countries');
+        $references_countries = ReferenceModel::query()
+            ->select('country')
+            ->where('is_displayed', '=', true)
+            ->groupBy('country')
+            ->pluck('country')
+            ->toArray();
+        $all_cca2 = array_column($container_countries, 'cca2');
+        $db_countries = [];
+        foreach ($references_countries as $cca2) {
+            //replace alpha2 by alpha3 codes
+            $idx = array_search(strtoupper((string)$cca2), $all_cca2);
+            if ($idx === false) {
+                continue;
             }
+            $db_countries[] = strtolower($container_countries[$idx]['cca3']);
+        }
+        sort($db_countries);
 
+        // cache key depends on displayed countries, so a newly moderated country is shown
+        $cache = $this->container->get('cache');
+        $cached_countries = $cache->getItem('geojson_' . md5(implode(',', $db_countries)));
+        if (!$cached_countries->isHit()) {
             $dir = $this->container->get('countries_dir');
             $countries_geo = [];
-            foreach (scandir("$dir/data/") as $file) {
-                if (strpos($file, '.geo.json') !== false) {
-                    $geo_alpha3 = str_replace('.geo.json', '', $file);
-                    if (in_array($geo_alpha3, $db_countries)) {
-                        $countries_geo[$geo_alpha3] = json_decode(file_get_contents("$dir/data/$file"), true);
-                    }
+            foreach ($db_countries as $cca3) {
+                $file = "$dir/data/$cca3.geo.json";
+                if (file_exists($file)) {
+                    $countries_geo[$cca3] = json_decode(file_get_contents($file), true);
                 }
             }
-            $countries = json_encode($countries_geo);
-
-            $cached_countries = $cache->getItem('countries');
-            $cached_countries->set($countries);
+            $cached_countries->set(json_encode((object)$countries_geo));
+            $cached_countries->expiresAfter(30 * 24 * 3600);
             $cache->save($cached_countries);
         }
 
-        return $this->withJson($response, (array)json_decode($countries));
+        $response = $response->withHeader('Content-Type', 'application/json');
+        $response->getBody()->write($cached_countries->get());
+        return $response;
     }
 
     public function schema(Request $request, Response $response): Response
