@@ -60,16 +60,23 @@ footer.ui.inverted.segment {
   padding: 4rem .1em;
   color: @white;
   text-align: center;
-  background-color: @light-blue;
+  background-color: @blue;
   background-image: url(themes/galette/assets/images/header_bg2.png);
   background-repeat: no-repeat;
   box-shadow: rgba(0, 0, 0, 0.2) 0px -1px 9px 0 inset;
   min-height: 202px;
+
+  .header {
+    color: @white;
+  }
 }
 .reference .ui.vertical.segment.page-header {
+  color: @primaryTextColor;
   background-color: @galetteColor;
   background-image: url(themes/galette/assets/images/header_bg3.png);
-}
-.ui.vertical.segment.page-header .header {
-  color:  @white;
+
+  .header,
+  .ui.button {
+    color: @primaryTextColor;
+  }
 }

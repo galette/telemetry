@@ -1,0 +1,19 @@
+/*******************************
+         Galette Overrides
+*******************************/
+
+.ui.inverted.link.list .item,
+.ui.inverted.link.list .item a:not(.ui),
+.ui.inverted.link.list a.item {
+    color: @white;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.ui.inverted.list .list > a.item > i.icon,
+.ui.inverted.list > a.item > i.icon {
+    color: @white;
+    text-decoration: none;
+}

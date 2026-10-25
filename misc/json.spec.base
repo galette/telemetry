@@ -11,6 +11,7 @@
                             "type": "string"
                         },
                         "plugins": {
+                            "maxItems": 200,
                             "items": {
                                 "properties": {
                                     "key": {

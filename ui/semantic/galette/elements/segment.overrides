@@ -1,0 +1,7 @@
+/*******************************
+         Galette Overrides
+*******************************/
+
+.ui.secondary.inverted.segment {
+    background: @secondaryColor;
+}

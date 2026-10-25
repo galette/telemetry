@@ -26,9 +26,9 @@ class Gaptcha
      */
     public function __construct()
     {
-        $this->current_left = rand($this->min, $this->max);
-        $this->current_right = rand($this->min, $this->max);
-        $this->current_op = rand(1, 2);
+        $this->current_left = random_int($this->min, $this->max);
+        $this->current_right = random_int($this->min, $this->max);
+        $this->current_op = random_int(1, 2);
         switch ($this->current_op) {
             case self::OP_ADD:
                 $this->gaptcha = $this->current_left + $this->current_right;
@@ -59,7 +59,7 @@ class Gaptcha
         ];
 
         $questions = ($this->current_op === self::OP_ADD) ? $add_questions : $sub_questions;
-        return $questions[rand(0, (count($questions) - 1))];
+        return $questions[random_int(0, (count($questions) - 1))];
     }
 
 
@@ -79,14 +79,30 @@ class Gaptcha
     }
 
     /**
-     * Checks captcha validity
+     * Get expected answer
      *
-     * @param integer $gaptcha User entry
+     * @return integer
+     */
+    public function getAnswer(): int
+    {
+        return $this->gaptcha;
+    }
+
+    /**
+     * Checks captcha validity against the answer stored in session.
+     * Stored answer is removed, so a captcha can be checked only once.
+     *
+     * @param mixed $gaptcha User entry
      *
      * @return boolean
      */
-    public function check(int $gaptcha): bool
+    public static function checkSession(mixed $gaptcha): bool
     {
-        return $gaptcha === $this->gaptcha;
+        $expected = $_SESSION['gaptcha'] ?? null;
+        unset($_SESSION['gaptcha']);
+
+        return is_int($expected)
+            && is_numeric($gaptcha)
+            && (int)$gaptcha === $expected;
     }
 }

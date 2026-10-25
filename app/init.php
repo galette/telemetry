@@ -1,5 +1,6 @@
 <?php
 
+use GaletteTelemetry\Twig\AssetExtension;
 use GaletteTelemetry\Twig\CsrfExtension;
 use Middlewares\TrailingSlash;
 use Psr\Http\Message\ServerRequestInterface;
@@ -7,15 +8,19 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Illuminate\Pagination\Paginator;
-use Geggleto\Service\Captcha;
 use Psr\Container\ContainerInterface;
-use ReCaptcha\ReCaptcha;
 use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extension\DebugExtension;
 
 // Start PHP session
+session_set_cookie_params([
+    'httponly' => true,
+    'samesite' => 'Lax',
+    'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+]);
 session_start();
 
 // include user configuration
@@ -23,6 +28,7 @@ $config = require __DIR__ .  '/../config.inc.php';
 if (file_exists(__DIR__ . '/../local.config.inc.php')) {
     require_once __DIR__ . '/../local.config.inc.php';
 }
+$config['debug'] = (bool)($config['debug'] ?? false);
 
 if (!defined('TELEMETRY_MODE')) {
     define('TELEMETRY_MODE', ($config['debug'] === true ? 'DEV' : 'PROD'));
@@ -175,6 +181,7 @@ $container->set(
         );
         $view->addExtension(new Slim\Views\TwigExtension($c->get('router'), $uri));*/
         $view->addExtension(new CsrfExtension($c->get('csrf')));
+        $view->addExtension(new AssetExtension(__DIR__ . '/../public'));
 
         if ($config['debug']) {
             $view->addExtension(new DebugExtension());
@@ -182,9 +189,6 @@ $container->set(
 
         // add some global to view
         $env = $view->getEnvironment();
-
-        // add recaptcha sitekey
-        $env->addGlobal('recaptchasitekey', $config['recaptcha']['sitekey']);
 
         $env->addGlobal('flash', $c->get('flash'));
 
@@ -201,14 +205,13 @@ $container->set(
         $env->addGlobal('mode', TELEMETRY_MODE);
 
         //dark css state
-        $env->addGlobal('darkcss_created', $c->get('darkcss_created'));
         $env->addGlobal('darkcss_enabled', ($_COOKIE['galettetelemetry_dark_mode'] ?? 0) == 1);
 
         return $view;
     }
 );
 
-$app->addErrorMiddleware(true, true, true);
+$app->addErrorMiddleware($config['debug'], true, true);
 
 $container->set(
     'data_dir',
@@ -256,18 +259,6 @@ $container->set(
     }
 );
 
-$container->set(
-    'darkcss_created',
-    function ($c) {
-        $cache = $c->get('cache');
-        if ($cache->hasItem('darkcss')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-);
-
 // manage page parameter for Eloquent Paginator
 // @see https://github.com/mattstauffer/Torch/blob/master/components/pagination/index.php
 Paginator::currentPageResolver(function ($pageName = 'page') {
@@ -281,8 +272,6 @@ Paginator::currentPathResolver(function () {
     return isset($_SERVER['REQUEST_URI']) ? strtok($_SERVER['REQUEST_URI'], '?') : '/';
 });
 
-// Add Routing Middleware
-$app->addRoutingMiddleware();
 $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 
 //trailing slash middleware

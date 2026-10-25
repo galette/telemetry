@@ -5,7 +5,15 @@ use Illuminate\Database\Eloquent\Model;
 class Reference extends Model
 {
     protected $table = 'reference';
-    protected $guarded = [
-      'is_displayed'
+    protected $fillable = [
+        'uuid',
+        'name',
+        'url',
+        'country',
+        'phone',
+        'email',
+        'referent',
+        'num_members',
+        'comment'
     ];
 }
