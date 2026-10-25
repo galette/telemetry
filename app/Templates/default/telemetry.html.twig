@@ -89,7 +89,7 @@
 
        {% if top_plugins %}
            <script type="text/javascript">
-               var _allPluginsURL = '{{ url_for('allPlugins') }}';
+               var _allPluginsURL = '{{ url_for('allPlugins', {}, {'years': form.years}) }}';
            </script>
          <div class="chart" data-expand-callback="pluginsExpanded">
          {% set vars = {'chart': {
