@@ -8,6 +8,7 @@ use JsonSchema\Validator;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Eloquent\Builder;
 
 use GaletteTelemetry\Models\Telemetry  as TelemetryModel;
 use GaletteTelemetry\Models\Plugin as PluginModel;
@@ -25,11 +26,7 @@ class Telemetry extends ControllerAbstract
         $dashboard = [];
 
         // retrieve nb of telemetry entries
-        $raw_nb_tel_entries = TelemetryModel::query()->where(
-            'created_at',
-            '>=',
-            $since
-        )->count(DB::raw('DISTINCT instance_uuid'));
+        $raw_nb_tel_entries = $this->latestEntries($since)->count();
         $nb_tel_entries = [
             'raw' => $raw_nb_tel_entries,
             'nb'  => (string)$raw_nb_tel_entries
@@ -56,11 +53,10 @@ class Telemetry extends ControllerAbstract
         $dashboard['nb_reference_entries'] = json_encode($nb_ref_entries);
 
         // retrieve php versions -- bar
-        $raw_php_versions = TelemetryModel::query()->select(
+        $raw_php_versions = $this->latestEntries($since)->select(
             DB::raw("split_part(php_version, '.', 1) || '.' || split_part(php_version, '.', 2) as version,
-                    count(DISTINCT(instance_uuid)) as total")
+                    count(*) as total")
         )
-            ->where('created_at', '>=', $since)
             ->groupBy(DB::raw("version"))
             ->orderBy(DB::raw("version"), 'asc')
             ->get()
@@ -107,40 +103,26 @@ class Telemetry extends ControllerAbstract
         $dashboard['references_countries'] = json_encode($references_countries_codes);
 
         // retrieve galette versions
-        $galette_versions = TelemetryModel::query()->select(
+        $galette_versions = $this->latestEntries($since)->select(
             DB::raw("TRIM(trailing '-dev' FROM galette_version) as version,
-                    count(DISTINCT(instance_uuid)) as total")
+                    count(*) as total")
         )
-            ->where('created_at', '>=', $since)
             ->groupBy('version')
             ->get()
             ->toArray();
+        $galette_versions = $this->groupOldVersions($galette_versions);
         $dashboard['galette_versions'] = json_encode([[
-            'type'    => 'pie',
-            'hole'    => .4,
-            'palette' => 'belize11',
-            'labels'  => array_column($galette_versions, 'version'),
-            'values'  => array_column($galette_versions, 'total')
+            'type'      => 'pie',
+            'hole'      => .4,
+            'sort'      => false,
+            'direction' => 'clockwise',
+            'palette'   => 'belize11',
+            'labels'    => array_column($galette_versions, 'version'),
+            'values'    => array_column($galette_versions, 'total')
         ]]);
 
         // retrieve top 5 plugins
-        $top_plugins = PluginModel::query()->join(
-            'plugins_telemetry',
-            'plugins.id',
-            '=',
-            'plugins_telemetry.plugin_id'
-        )
-            ->select(DB::raw("plugins.name, count(plugins_telemetry.*) as total"))
-            ->where(
-                'plugins_telemetry.created_at',
-                '>=',
-                $since
-            )
-            ->orderBy('total', 'desc')
-            ->limit(5)
-            ->groupBy(DB::raw("plugins.name"))
-            ->get()
-            ->toArray();
+        $top_plugins = $this->topPlugins($since, 5);
         $dashboard['top_plugins'] = json_encode([[
             'type'   => 'bar',
             'marker' => ['color' => "#22727B"],
@@ -149,48 +131,57 @@ class Telemetry extends ControllerAbstract
         ]]);
 
         // retrieve os
-        $os_family = TelemetryModel::query()->select(
-            DB::raw("os_family, count(DISTINCT(instance_uuid)) as total")
+        $os_family = $this->latestEntries($since)->select(
+            // some hosts send the full uname (ie. "Linux localhost 4.18.0-553…"), keep only OS name
+            DB::raw("regexp_replace(os_family, '^(\\S+) \\S+ [0-9].*$', '\\1') as reduced_os_family,
+                    count(*) as total")
         )
-            ->where('created_at', '>=', $since)
-            ->groupBy(DB::raw("os_family"))
+            ->groupBy('reduced_os_family')
             ->get()
             ->toArray();
         $dashboard['os_family'] = json_encode([[
             'type'    => 'pie',
             'hole'    => .4,
             'palette' => 'fall6',
-            'labels'  => array_column($os_family, 'os_family'),
+            'labels'  => array_column($os_family, 'reduced_os_family'),
             'values'  => array_column($os_family, 'total')
         ]]);
 
         // retrieve languages
-        $languages = TelemetryModel::query()->select(
-            DB::raw("instance_default_language, count(DISTINCT(instance_uuid)) as total")
+        $languages = $this->latestEntries($since)->select(
+            DB::raw("instance_default_language, count(*) as total")
         )
-            ->where('created_at', '>=', $since)
             ->groupBy(DB::raw("instance_default_language"))
             ->get()
             ->toArray();
+        // display language names; regional variants are merged
+        $languages_names = [];
+        foreach ($languages as $language) {
+            $name = \Locale::getDisplayLanguage($language['instance_default_language'], 'en');
+            $languages_names[$name] = ($languages_names[$name] ?? 0) + $language['total'];
+        }
+        uksort(
+            $languages_names,
+            fn($a, $b) => $languages_names[$b] <=> $languages_names[$a] ?: strcmp($a, $b)
+        );
         $dashboard['default_languages'] = json_encode([[
-            'type'    => 'pie',
-            'hole'   => .4,
-            'palette' => 'combo',
-            'labels'  => array_column($languages, 'instance_default_language'),
-            'values'  => array_column($languages, 'total')
+            'type'        => 'bar',
+            'orientation' => 'h',
+            'marker'      => ['color' => '#006495'],
+            'x'           => array_values($languages_names),
+            'y'           => array_keys($languages_names)
         ]]);
 
         // retrieve db engine
-        $db_engines = TelemetryModel::query()->select(
+        $db_engines = $this->latestEntries($since)->select(
             DB::raw("CASE
                         WHEN UPPER(db_engine) LIKE '%POSTGRE%' THEN 'PostgreSQL'
                         WHEN UPPER(db_engine) LIKE '%MARIA%' THEN 'MariaDB'
                         WHEN UPPER(db_engine) LIKE '%PERCONA%' THEN 'Percona'
                         ELSE 'MySQL'
                     END as reduced_db_engine,
-                    count(DISTINCT(instance_uuid)) as total")
+                    count(*) as total")
         )
-            ->where('created_at', '>=', $since)
             ->groupBy('reduced_db_engine')
             ->get()
             ->toArray();
@@ -203,13 +194,10 @@ class Telemetry extends ControllerAbstract
         ]]);
 
         // retrieve web engine
-        $web_engines = TelemetryModel::query()->select(
-            DB::raw("web_engine, count(DISTINCT(instance_uuid)) as total")
+        $web_engines = $this->latestEntries($since)->select(
+            DB::raw("web_engine, count(*) as total")
         )
-        ->where([
-            ['created_at', '>=', $since],
-            ['web_engine', '<>', '']
-        ])
+            ->where('web_engine', '<>', '')
             ->groupBy(DB::raw("web_engine"))
             ->get()
             ->toArray();
@@ -362,23 +350,7 @@ class Telemetry extends ControllerAbstract
     {
         $since = $this->getSinceDate($this->getYears($request));
 
-        $top_plugins = PluginModel::query()->join(
-            'plugins_telemetry',
-            'plugins.id',
-            '=',
-            'plugins_telemetry.plugin_id'
-        )
-            ->selectRaw("plugins.name, count(plugins_telemetry.*) as total")
-            ->where(
-                'plugins_telemetry.created_at',
-                '>=',
-                $since
-            )
-            ->orderBy('total', 'desc')
-            ->groupBy(DB::raw("plugins.name"))
-            ->limit(30)
-            ->get()
-            ->toArray();
+        $top_plugins = $this->topPlugins($since, 30);
 
         return $this->withJson(
             $response,
@@ -391,6 +363,94 @@ class Telemetry extends ControllerAbstract
                 ]
             ]
         );
+    }
+
+    /**
+     * Get a query on the latest telemetry entry of each instance during the period
+     *
+     * Instances send telemetry regularly; counting all their entries would count
+     * an upgraded instance once per version it ran during the period.
+     *
+     * @param DateTimeImmutable $since Date from which data are displayed
+     *
+     * @return Builder<TelemetryModel>
+     */
+    private function latestEntries(DateTimeImmutable $since): Builder
+    {
+        $latest = TelemetryModel::query()
+            ->selectRaw('DISTINCT ON (instance_uuid) *')
+            ->where('updated_at', '>=', $since)
+            ->orderBy('instance_uuid')
+            ->orderBy('updated_at', 'desc')
+            ->orderBy('id', 'desc');
+
+        $query = TelemetryModel::query();
+        $query->getQuery()->fromSub($latest, 'telemetry');
+        return $query;
+    }
+
+    /**
+     * Get most used plugins, by number of instances using them
+     *
+     * @param DateTimeImmutable $since Date from which data are displayed
+     * @param int               $limit Number of plugins to retrieve
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function topPlugins(DateTimeImmutable $since, int $limit): array
+    {
+        return $this->latestEntries($since)
+            ->join('plugins_telemetry', 'telemetry.id', '=', 'plugins_telemetry.telemetry_entry_id')
+            ->join('plugins', 'plugins.id', '=', 'plugins_telemetry.plugin_id')
+            ->selectRaw('plugins.name, count(DISTINCT telemetry.instance_uuid) as total')
+            ->groupBy('plugins.name')
+            ->orderBy('total', 'desc')
+            ->orderBy('plugins.name')
+            ->limit($limit)
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Group versions of old branches, and sort them, most recent first
+     *
+     * Versions of the two most recent branches are kept, older ones are grouped
+     * per branch (ie. "v1.1.x"). Versions without patch number are merged with
+     * their ".0" counterpart.
+     *
+     * @param array<int, array<string, mixed>> $versions Versions, with their total
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function groupOldVersions(array $versions): array
+    {
+        $branch = fn(string $version): string => preg_match('/^v?(\d+\.\d+)/', $version, $m) ? $m[1] : $version;
+        $compare = fn(string $a, string $b): int => version_compare(ltrim($b, 'v'), ltrim($a, 'v'));
+
+        $branches = array_unique(array_map(fn($version) => $branch($version['version']), $versions));
+        usort($branches, $compare);
+        $recent_branches = array_slice($branches, 0, 2);
+
+        $grouped = [];
+        foreach ($versions as $version) {
+            $name = $branch($version['version']);
+            // some versions are sent without patch number (ie. "v1.3" for "v1.3.0")
+            $label = in_array($name, $recent_branches, true)
+                ? preg_replace('/^(v?\d+\.\d+)$/', '$1.0', $version['version'])
+                : "v$name.x";
+            $grouped[$label] = ($grouped[$label] ?? 0) + $version['total'];
+        }
+        // compare grouped versions on their branch
+        uksort($grouped, fn($a, $b) => $compare(str_replace('.x', '', $a), str_replace('.x', '', $b)));
+
+        $versions = [];
+        foreach ($grouped as $label => $total) {
+            $versions[] = [
+                'version' => $label,
+                'total'   => $total
+            ];
+        }
+        return $versions;
     }
 
     /**

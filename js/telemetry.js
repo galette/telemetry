@@ -216,7 +216,24 @@ $(document).ready(function() {
         Plotly.newPlot(
             "default_languages",
             plotlyData(default_languages.data("id")),
-            plotly_pie_layout,
+            $.extend(
+                {},
+                plotly_bar_layout, {
+                    showlegend: false,
+                    margin: {
+                        l: 50,
+                        r: 10,
+                        b: 30,
+                        t: 10,
+                        pad: 4
+                    },
+                    xaxis: {},
+                    yaxis: {
+                        autorange: 'reversed',
+                        automargin: true
+                    }
+                }
+            ),
             plotly_config
         );
     }
